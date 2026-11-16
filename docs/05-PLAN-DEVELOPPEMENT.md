@@ -119,3 +119,11 @@ Revenir temporairement à Opus si :
 - Firestore approche des quotas (≥ 70 % sur une journée) ⇒ revoir la stratégie de sauvegarde ;
 - un type d'exercice Schooding inédit apparaît (nouvel outil graphique, fonctions écrites par l'étudiant, classes) ⇒ concevoir le nouveau `kind` ;
 - le modèle de maîtrise donne des résultats aberrants sur données réelles.
+
+## Addendum 16/11/2026 — export Schooding reçu
+
+- Fichier : `private/schooding-export-2026-11-16.json` (9 séances, 79 exercices avec énoncé FR + outils, 8 QCM listés). **Dossier `private/` ignoré par git : ne jamais le committer ni le publier.** T6 (import) le lit et l'envoie dans Firestore (collection privée), pas dans le dépôt.
+- **Codes enregistrés inutilisables** : `studentSavedCode` de 541, 590, 591, 593 a été abîmé par mon décodeur (double décodage des échappements). Ne pas s'en servir comme référence ; les solutions de référence sont écrites par IPA Studio et validées contre le vrai JDK.
+- **Absents de l'export** (lecture seule, non récupérables sans exécuter sur Schooding) : schémas/images des énoncés (4464, 513, 525, 526, 527, 529, 4484 y renvoient), cartes Runner, tests Schooding, liste exacte des couleurs de `setFillColor`. ⇒ tests et cartes créés par IPA Studio, avec provenance affichée ; énoncés renvoyant à un schéma : le schéma est redessiné par IPA Studio ou l'énoncé précisé en texte.
+- 4 exercices sans outil exporté : 529, 558, 571, 593.
+- Outils réels = 34 signatures (voir `docs/02` §4) ; `affiche*` a deux variantes (avec/sans retour à la ligne) portées par `ToolConfig.newline`.

@@ -59,16 +59,29 @@ Chaque outil = `{ id, signature, descriptionFr, javaSource, renderer? }`. Le gab
 
 | id | Signature | Implémentation |
 |---|---|---|
-| `affiche` | `void affiche(String message)` | ajoute une ligne à `out` |
-| `debug` | `void debug(T value)` surcharges `int,long,double,float,char,boolean,String,Object` | ajoute à `dbg` (non noté) |
+| `affiche` | `void affiche(String message)` | **Deux variantes selon l'exercice** (`newline: true|false` dans la config d'outil). Avec retour à la ligne (défaut, 17 exercices : « …puis retourne à la ligne »), sans (« …sans passer à la ligne » : 539, 541 ; énoncé « Affiche la chaîne… » sans précision : 2931, 2934, 2936, **à trancher à l'import en lisant l'énoncé**). La variante est copiée de la description Schooding de l'exercice, jamais devinée |
+| `afficheEntier` | `void afficheEntier(int i)` | idem `affiche` (même drapeau `newline`) ; 559–563 : description sans précision ⇒ `newline` lu dans l'énoncé |
+| `afficheReel` | `void afficheReel(double d)` | 4484 : réel + retour à la ligne ; 2931 : « avec 3 décimales » (`String.format(Locale.ROOT,"%.3f")`) |
+| `afficheReels` | `void afficheReels(double f, double g)` | 2931 : f et g à 3 décimales, l'un après l'autre |
+| `afficheBooleen` | `void afficheBooleen(boolean b)` | 4484 : `true`/`false` + retour à la ligne |
+| `debug` | `void debug(T value)` surcharges `int,long,double,float,char,boolean,String,Object` | ajoute à `dbg` (non noté). Présent dans 74 exercices sur 79 |
 | `PI` | `static final double PI` | `3.1415926536` (10 décimales, comme l'outil Schooding) |
 | `pgcd` | `int pgcd(int a, int b)` | Euclide sur valeurs absolues |
-| `setFillColor` | `void setFillColor(String color)` | couleurs autorisées : `white, black, red, green, blue, yellow, orange, brown, gray, pink, purple, cyan` (à confirmer sur Schooding au 1ᵉʳ import — **hypothèse**) |
+| `sqrt` | `double sqrt(double f)` | 2931 : outil **fourni**, distinct de `Math.sqrt` (`Math` reste disponible via `java.lang`) |
+| `sin`, `cos` | `double sin/cos(double angle)` | radians (514) |
+| `distance` | `double distance(double x1,y1,x2,y2)` | distance euclidienne (2932) |
+| `setFillColor` | `void setFillColor(String color)` | 16 exercices. **La liste des couleurs est tronquée dans l'export** (liste HTML non extraite) : l'ensemble `white, black, red, green, blue, yellow, orange, brown, gray, pink, purple, cyan` reste une **hypothèse** ; une couleur inconnue lève une erreur explicite listant les couleurs gérées |
 | `rectangle` | `void rectangle(int x, int y, int width, int height)` | remplissage sur toile `int[height][width]` |
 | `isoTriangle` | `void isoTriangle(int x, int y, int width, int height)` | pointe vers le bas, hauteur négative ⇒ vers le haut ; remplissage par balayage |
-| `fillCase` | `void fillCase(int x, int y)` | colorie la case (x = colonne, y = ligne, origine en haut à gauche) ; hors grille ⇒ exception explicite |
-| `moveUp/Down/Left/Right` | `void moveX()` | déplace le personnage ; enregistre le chemin |
+| `circle` | `void circle(int x, int y, int radius)` | disque plein (514) |
+| `line` | `void line(int x1, int y1, int x2, int y2)` | trait dans la couleur courante (514) |
+| `startPolygon`, `addPoint`, `stopPolygon` | `void startPolygon()` / `addPoint(int x,int y)` / `stopPolygon()` | polygone courant, un seul à la fois (513) ; démarrer sans terminer le précédent ⇒ erreur |
+| `fillCase` | `void fillCase(int x, int y)` | colorie la case (x = colonne, y = ligne, origine en haut à gauche) ; hors grille ⇒ exception explicite (12 exercices) |
+| `moveUp/Down/Left/Right` | `void moveX()` | déplace le personnage ; enregistre le chemin (6 exercices) |
+| `warmer` | `boolean warmer()` | vrai si le dernier déplacement a rapproché du but (545) ; dépend de la carte |
 | variables `width`, `height` | `static int` | dimensions de la toile (défaut 300×300 — **hypothèse** à vérifier visuellement) |
+
+Quatre exercices (529, 558, 571, 593) n'ont **aucun outil listé** : ni `affiche`, ni `debug`. Le gabarit ne leur ajoute donc rien (exercices à variables seulement, ou 529 dessin sans liste exportée : à relire à l'import).
 
 Rendu : `CanvasView` (toile), `GridView` (grille), `RunnerView` (carte + animation du chemin), partagés entre exécution et correction.
 

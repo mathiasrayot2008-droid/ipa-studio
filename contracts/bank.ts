@@ -27,8 +27,21 @@ export type JavaType = 'int' | 'long' | 'double' | 'boolean' | 'char' | 'String'
 export interface JavaValue { type: JavaType; value: unknown }      // value JSON-compatible (char = string de longueur 1)
 
 // ───────────────────────── Outils Schooding ─────────────────────────
-export type ToolId = 'affiche' | 'debug' | 'PI' | 'pgcd' | 'setFillColor' | 'rectangle' | 'isoTriangle'
-  | 'fillCase' | 'moveUp' | 'moveDown' | 'moveLeft' | 'moveRight' | 'canvasSize';
+export type ToolId =
+  | 'affiche' | 'afficheEntier' | 'afficheReel' | 'afficheReels' | 'afficheBooleen' | 'debug'
+  | 'PI' | 'pgcd' | 'sqrt' | 'sin' | 'cos' | 'distance'
+  | 'setFillColor' | 'rectangle' | 'isoTriangle' | 'circle' | 'line'
+  | 'startPolygon' | 'addPoint' | 'stopPolygon'
+  | 'fillCase' | 'moveUp' | 'moveDown' | 'moveLeft' | 'moveRight' | 'warmer' | 'canvasSize';
+
+/** Configuration d'un outil dans un exercice (copiée de la description Schooding, jamais devinée). */
+export interface ToolConfig {
+  id: ToolId;
+  /** affiche* : true = retour à la ligne après l'affichage (défaut), false = « sans passer à la ligne ». */
+  newline?: boolean;
+  /** afficheReel(s) : nombre de décimales imposé (ex. 3), sinon représentation Java par défaut. */
+  decimals?: number;
+}
 
 export type ExerciseKind = 'snippet' | 'drawing' | 'grid' | 'runner' | 'members' | 'program';
 
@@ -64,7 +77,7 @@ export interface Exercise {
   notions: { primary: NotionId; secondary: NotionId[] };
   difficulty: 1 | 2 | 3 | 4 | 5;
   estimatedMinutes: number;
-  tools: ToolId[];
+  tools: ToolConfig[];
   givenVariables: { name: string; type: JavaType; description: string }[];
   expectedVariables: { name: string; type: JavaType }[];
   starterCode: string;               // ex. « //str est une chaîne de caractères déjà déclarée et initialisée »
