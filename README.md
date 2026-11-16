@@ -3,8 +3,21 @@
 Plateforme de révision Java pour le module **IPA (ESIEE Paris, 1ʳᵉ année)** : TP Schooding fidèles, entraînement ciblé par notion, DST générés (examen/assisté), exécution Java réelle dans le navigateur, suivi de maîtrise. **Zéro dépense** : GitHub Pages + Firebase Spark + CheerpJ Community.
 
 ## État du projet
-- ✅ **Phase Opus terminée (16/11/2026)** : analyse Schooding, architecture, moteur DST, runtime Java, modèle de données, plan. Voir `docs/`.
-- ⏭️ **Phase Sonnet** : développement selon `docs/05-PLAN-DEVELOPPEMENT.md` §7 (T1 → T15). Suivi dans `docs/STATUS.md`.
+- ✅ **Application complète côté code** (voir `docs/STATUS.md`) : TP Schooding fidèles, Java réel dans le navigateur, DST générés (strict / assisté), maîtrise par notion, fiches, PWA hors ligne.
+- 🚀 **Mise en ligne** : suivre `docs/06-MISE-EN-PLACE.md` (GitHub Pages + Firebase Spark, ≈ 30 min, 0 €). Les workflows `.github/workflows/` testent et déploient automatiquement.
+- 🔁 **Actualisation hebdomadaire des TP** : `docs/07-IMPORT-HEBDOMADAIRE.md`.
+
+## Commandes
+```bash
+npm ci --legacy-peer-deps
+npm run dev            # développement (mode local, sans compte)
+npm test               # 87 tests unitaires
+npm run test:rules     # règles Firestore (émulateur local)
+npm run test:e2e       # Chrome réel : Java, DST, fiches, PWA (CHROME_PATH=/usr/bin/google-chrome)
+npm run test:e2e:accounts  # deux comptes séparés (émulateurs Auth + Firestore)
+npx tsx bank/build/pools.ts   # régénère la banque d'exercices générés (JDK requis)
+```
+Configuration Firebase : variable `VITE_FIREBASE_CONFIG` (JSON) au build — en CI, variable de dépôt `FIREBASE_CONFIG`. Absente ⇒ mode local.
 
 ## À lire avant de coder (dans l'ordre)
 1. `docs/01-DECISIONS.md` — choix techniques et leurs preuves (ne pas les remettre en cause sans retour Opus)
@@ -33,6 +46,6 @@ javac -nowarn --release 17 -cp lib/ecj.jar:lib/asm.jar -d out proto/harness/src/
 Dans l'espace de travail Claude : prototypes déjà construits dans `/home/claude/proto/` (jars prêts dans `/home/claude/proto/web/`). Chrome headless : passer `--proxy-server=http://127.0.0.1:42131` (proxy de l'environnement).
 
 ## En attente côté Mathias
-- [ ] Joindre `ipa-schooding-export-2026-11-16.json` (téléchargé dans son Chrome) à la conversation → tâche T6.
-- [ ] Créer le projet Firebase (Spark) et le compte/dépôt GitHub — guidage pas à pas en T5/T14.
-- [ ] Activer « Require this computer » sur la tâche du lundi (appli de bureau Claude).
+- [ ] Activer « Require this computer » sur la tâche planifiée du lundi (application de bureau Claude).
+- [ ] Créer le projet Firebase (offre **Spark**, jamais Blaze) et le compte + dépôt GitHub public `ipa-studio` → `docs/06-MISE-EN-PLACE.md`.
+- [ ] Choisir le code d'invitation de la cohorte (saisi dans Firestore, jamais dans le code).
