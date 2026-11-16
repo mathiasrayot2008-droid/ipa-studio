@@ -1,4 +1,4 @@
-import type { CompareOptions, TestCase } from '@/types/bank';
+import type { CompareOptions, ExpectedResult, JavaValue, TestCase } from '@/types/bank';
 import { compareTest, DEFAULT_COMPARE, type Mismatch } from './compare';
 import { translateEcj, translateException, type FrMessage } from './ecjMessagesFr';
 import type { HarnessOutput, HarnessTestResult } from './harnessTypes';
@@ -16,6 +16,10 @@ export interface TestVerdict {
   mismatches: Mismatch[];
   /** Exécution complète : transmise à l'UI seulement pour les tests publics (les autres restent opaques). */
   actual?: HarnessTestResult;
+  /** Entrées, scène et résultat attendu : tests publics uniquement (retirés par redactHidden). */
+  inputs?: Record<string, JavaValue>;
+  scene?: TestCase['scene'];
+  expected?: ExpectedResult;
   skipped: boolean;
 }
 
@@ -67,7 +71,7 @@ export function grade(
   out: HarnessOutput,
   proj: BuiltProject,
   code: string,
-  tests: Pick<TestCase, 'id' | 'visibility' | 'weight' | 'expected'>[],
+  tests: Pick<TestCase, 'id' | 'visibility' | 'weight' | 'expected' | 'inputs' | 'scene'>[],
   compare: CompareOptions = DEFAULT_COMPARE,
 ): CheckResult {
   const empty = { score: 0, passed: 0, total: tests.length, verdicts: [] as TestVerdict[], debug: '', stdout: '' };
@@ -84,7 +88,7 @@ export function grade(
     const act = out.tests.find((x) => x.id === t.id);
     if (!act || act.skipped) return { id: t.id, visibility: t.visibility, weight: t.weight, passed: false, ms: 0, mismatches: [{ kind: 'timeout' }], skipped: true };
     const mm = compareTest(t.expected, act, compare);
-    return { id: t.id, visibility: t.visibility, weight: t.weight, passed: mm.length === 0, ms: act.ms, mismatches: mm, actual: act, skipped: false };
+    return { id: t.id, visibility: t.visibility, weight: t.weight, passed: mm.length === 0, ms: act.ms, mismatches: mm, actual: act, skipped: false, inputs: t.inputs, scene: t.scene, expected: t.expected };
   });
 
   const tags = new Set<string>();
@@ -114,6 +118,6 @@ export const exceptionMessage = (m: Extract<Mismatch, { kind: 'exception' }>): F
 export function redactHidden(r: CheckResult): CheckResult {
   return {
     ...r,
-    verdicts: r.verdicts.map((v) => (v.visibility === 'public' ? v : { ...v, actual: undefined, mismatches: v.mismatches.length ? [{ kind: 'hidden' } as Mismatch] : [] })),
+    verdicts: r.verdicts.map((v) => (v.visibility === 'public' ? v : { ...v, actual: undefined, inputs: undefined, scene: undefined, expected: undefined, mismatches: v.mismatches.length ? [{ kind: 'hidden' } as Mismatch] : [] })),
   };
 }

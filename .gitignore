@@ -3,3 +3,6 @@ out/
 dist/
 *.log
 private/
+test-results/
+playwright-report/
+build/
