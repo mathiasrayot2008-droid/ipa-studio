@@ -159,6 +159,8 @@ export interface DstSubject {
   estimatedTotalMin: number;
   hintPolicy: HintPolicy;
   createdAt: string;
+  /** Limites rencontrées à la composition (durée courte, banque trop étroite…) : affichées honnêtement à l'étudiant. */
+  warnings?: string[];
 }
 export interface HintPolicy { penalties: [number, number, number]; solutionRevealedScore: 0 }  // ex. [0.10, 0.25, 0.50] cumul max
 
