@@ -2,7 +2,7 @@ import type { DstConfig, DstSubject, NotionId } from '@/types/bank';
 import { NOTION_SESSION, SUBNOTION_OWNER } from './notions';
 import { makeRng, weightedIndex, type ForkRng } from './rng';
 import { allocatePoints, DEFAULT_HINT_POLICY } from './scoring';
-import { baseMinutes, planRamp } from './solver';
+import { baseMinutes, LEVEL_BAND, planRamp, sizeRange } from './solver';
 
 /** Une variante concrète pré-validée de la banque (la banque est la source de vérité, pas le générateur). */
 export interface PoolEntry {
@@ -149,7 +149,14 @@ export function composeDst(config: DstConfig, seed: string, ctx: ComposeContext)
       const want = baseMinutes(s.target) * k;
       const bestGap = Math.min(...near.map((v) => Math.abs(v.minutes - want)));
       const v = r.pick(near.filter((x) => Math.abs(x.minutes - want) === bestGap));
-      const free = v.instances.filter((e) => !used.has(e.key));
+      let free = v.instances.filter((e) => !used.has(e.key));
+      if (!free.length) {
+        // Toutes les instances de cette variante sont déjà dans le sujet : on prend la plus proche, jamais deux fois la même clé.
+        free = byNotion.get(s.notion)!.filter((e) => !used.has(e.key)).sort((a, b) => Math.abs(a.difficulty - dInt) - Math.abs(b.difficulty - dInt));
+        const best = free.length ? Math.abs(free[0]!.difficulty - dInt) : 0;
+        free = free.filter((e) => Math.abs(e.difficulty - dInt) === best);
+      }
+      if (!free.length) free = ctx.pool.filter((e) => !used.has(e.key) && (NOTION_SESSION[e.notion] ?? 99) <= config.asOfSession);
       const fresh = free.filter((e) => !succeeded.has(e.key));
       const e = r.pick(fresh.length ? fresh : free.length ? free : v.instances);
       used.add(e.key);
@@ -169,11 +176,12 @@ export function composeDst(config: DstConfig, seed: string, ctx: ComposeContext)
 
   // 11 (suite). Réparation locale : remplace un exercice par un voisin (même notion, ±1 de difficulté, famille non déjà utilisée)
   // tant que la durée reste hors de [0,88·D ; 0,97·D]. Garde la rampe : l'ordre est recalculé après coup.
-  {
-    const r = root.fork('repair');
+  const inWindow = (t: number) => t >= 0.88 * D && t <= 0.97 * D;
+  const repair = (tag: string) => {
+    const r = root.fork(`repair/${tag}`);
     for (let iter = 0; iter < 4 * n; iter++) {
       const tot = total(chosenEntries);
-      if (tot >= 0.88 * D && tot <= 0.97 * D) break;
+      if (inWindow(tot)) break;
       const goal = 0.92 * D;
       const keys = new Set(chosenEntries.map((e) => e.key));
       let best: { i: number; e: PoolEntry } | null = null;
@@ -190,6 +198,49 @@ export function composeDst(config: DstConfig, seed: string, ctx: ComposeContext)
       if (!best) break;
       chosenEntries = chosenEntries.map((e, j) => (j === best!.i ? best!.e : e));
     }
+  };
+  repair('a');
+
+  // 11 (fin). Si la durée reste hors fenêtre malgré les remplacements (banque dont les variantes d'une même difficulté
+  // ont peu de durées différentes), on ajoute ou on retire UN exercice à la fois, dans la plage de taille admise pour D.
+  {
+    const [loN, hiN] = sizeRange(D);
+    const nMin = Math.max(1, Math.ceil(loN)); const nMax = Math.max(nMin, Math.floor(hiN));
+    const [bLo, bHi] = LEVEL_BAND[config.level];
+    const dLo = Math.max(1, Math.floor(bLo)); const dHi = Math.min(5, Math.ceil(bHi));
+    const r = root.fork('size');
+    for (let step = 0; step < 4 && !inWindow(total(chosenEntries)); step++) {
+      const tot = total(chosenEntries);
+      const goal = 0.92 * D;
+      const keys = new Set(chosenEntries.map((e) => e.key));
+      if (tot < 0.88 * D && chosenEntries.length < nMax) {
+        const fams = new Set(chosenEntries.map((e) => e.familyId));
+        const used = new Map<NotionId, number>();
+        for (const e of chosenEntries) used.set(e.notion, (used.get(e.notion) ?? 0) + 1);
+        const capN = chosen ? Math.ceil((chosenEntries.length + 1) / eligible.length) : Math.ceil((chosenEntries.length + 1) / 3);
+        let best: PoolEntry | null = null; let bestScore = Infinity;
+        for (const cand of r.shuffle(eligible.flatMap((nt) => byNotion.get(nt)!))) {
+          if (keys.has(cand.key) || fams.has(cand.familyId) || succeeded.has(cand.key) || cand.difficulty < dLo || cand.difficulty > dHi) continue;
+          const over = (used.get(cand.notion) ?? 0) >= capN ? 1 : 0;
+          const fresh = used.has(cand.notion) ? 0.5 : 0; // préfère une notion encore absente
+          const score = Math.abs(tot + cand.minutes - goal) + 20 * over + fresh;
+          if (score < bestScore - 1e-9) { bestScore = score; best = cand; }
+        }
+        if (!best) break;
+        chosenEntries = [...chosenEntries, best];
+      } else if (tot > 0.97 * D && chosenEntries.length > nMin) {
+        let bestI = -1; let bestGap = Infinity;
+        for (const i of r.shuffle(chosenEntries.map((_, idx) => idx))) {
+          const rest = chosenEntries.filter((_, j) => j !== i);
+          if (new Set(rest.map((e) => e.notion)).size < Math.min(minDistinct, rest.length)) continue;
+          const gap = Math.abs(tot - chosenEntries[i]!.minutes - goal);
+          if (gap < bestGap) { bestGap = gap; bestI = i; }
+        }
+        if (bestI < 0) break;
+        chosenEntries = chosenEntries.filter((_, j) => j !== bestI);
+      } else break;
+      repair(`s${step}`);
+    }
   }
 
   // 9. Ordre croissant (tri stable) + 8. anti-répétition locale de notion.
@@ -199,16 +250,33 @@ export function composeDst(config: DstConfig, seed: string, ctx: ComposeContext)
     const l = order.findIndex((e, idx) => idx > j && e.difficulty === order[j]!.difficulty && e.notion !== order[j - 1]!.notion);
     if (l > j) [order[j], order[l]] = [order[l]!, order[j]!];
   }
-  // Écart de difficulté ≥ 1 entre premier et dernier dès 3 exercices.
+  // Écart de difficulté ≥ 1 entre premier et dernier dès 3 exercices : on abaisse le premier ou on relève le dernier,
+  // d'abord dans sa notion, puis dans n'importe quelle notion éligible (en préservant la diversité de notions si possible).
   if (order.length >= 3 && order[order.length - 1]!.difficulty - order[0]!.difficulty < 1) {
     const keys = new Set(order.map((e) => e.key));
-    const easier = byNotion.get(order[0]!.notion)!.filter((e) => e.difficulty < order[0]!.difficulty && !keys.has(e.key)).sort((a, b) => a.difficulty - b.difficulty || (a.familyId === order[0]!.familyId ? -1 : 1));
-    if (easier[0]) order[0] = root.fork('ramp').pick(easier.filter((e) => e.difficulty === easier[0]!.difficulty));
-    else {
-      const last = order[order.length - 1]!;
-      const harder = byNotion.get(last.notion)!.filter((e) => e.difficulty > last.difficulty && !keys.has(e.key)).sort((a, b) => b.difficulty - a.difficulty);
-      if (harder[0]) order[order.length - 1] = root.fork('ramp').pick(harder.filter((e) => e.difficulty === harder[0]!.difficulty));
-    }
+    const fams = new Set(order.map((e) => e.familyId));
+    const all = eligible.flatMap((nt) => byNotion.get(nt)!);
+    const pickFrom = (cands: PoolEntry[], replaced: PoolEntry): PoolEntry | undefined => {
+      const others = new Set(order.filter((e) => e !== replaced).map((e) => e.notion));
+      const pools = [
+        cands.filter((e) => e.notion === replaced.notion),
+        cands.filter((e) => !others.has(e.notion) && !fams.has(e.familyId)),
+        cands.filter((e) => !others.has(e.notion)),
+        cands,
+      ];
+      for (const c of pools) {
+        if (!c.length) continue;
+        const ext = c.reduce((m, e) => (replaced === order[0] ? Math.min(m, e.difficulty) : Math.max(m, e.difficulty)), replaced === order[0] ? 9 : 0);
+        return root.fork('ramp').pick(c.filter((e) => e.difficulty === ext));
+      }
+      return undefined;
+    };
+    const first = order[0]!; const last = order[order.length - 1]!;
+    const easier = all.filter((e) => e.difficulty < first.difficulty && !keys.has(e.key) && !succeeded.has(e.key));
+    const harder = all.filter((e) => e.difficulty > last.difficulty && !keys.has(e.key) && !succeeded.has(e.key));
+    const e1 = pickFrom(easier, first);
+    if (e1) order[0] = e1;
+    else { const e2 = pickFrom(harder, last); if (e2) order[order.length - 1] = e2; }
     order.sort((a, b) => a.difficulty - b.difficulty || a.minutes - b.minutes);
     if (order[order.length - 1]!.difficulty - order[0]!.difficulty < 1) warnings.push('Les exercices disponibles sur ce périmètre ont tous la même difficulté.');
   }

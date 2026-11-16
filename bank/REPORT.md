@@ -1,0 +1,44 @@
+# Rapport de validation des pools IPA Studio (ipa-1.0.0)
+
+- 13 familles, 38 variantes, **152 exercices valides**, 13 notions couvertes
+- mutants : 456, tous tués (sinon ❌ ci-dessous)
+- aucun échec — 3 s
+
+- accumulation/produit-impairs (d3) : 4/4 instances valides
+- accumulation/somme-1-n (d1) : 4/4 instances valides
+- accumulation/somme-multiples (d2) : 4/4 instances valides
+- convUnites/jours-semaines (d1) : 4/4 instances valides
+- convUnites/pouces (d2) : 4/4 instances valides
+- convUnites/sec-hms (d1) : 4/4 instances valides
+- diviseurs/nb-diviseurs (d3) : 4/4 instances valides
+- diviseurs/pgcd-soustractions (d4) : 4/4 instances valides
+- diviseurs/premier (d3) : 4/4 instances valides
+- grilleMotif/bordure (d3) : 4/4 instances valides
+- grilleMotif/damier (d3) : 4/4 instances valides
+- grilleMotif/diagonales (d4) : 4/4 instances valides
+- minMaxN/deuxieme4 (d3) : 4/4 instances valides
+- minMaxN/max3 (d1) : 4/4 instances valides
+- minMaxN/mediane3 (d2) : 4/4 instances valides
+- strAcces/dernier (d1) : 4/4 instances valides
+- strAcces/milieu (d2) : 4/4 instances valides
+- strCompte/count-char (d2) : 4/4 instances valides
+- strCompte/count-upper (d2) : 4/4 instances valides
+- strCompte/count-vowels (d3) : 4/4 instances valides
+- switchMenu/calculatrice (d3) : 4/4 instances valides
+- switchMenu/jour-semaine (d2) : 4/4 instances valides
+- switchMenu/jours-du-mois (d2) : 4/4 instances valides
+- tab2DInit/damier (d2) : 4/4 instances valides
+- tab2DInit/somme-lignes (d3) : 4/4 instances valides
+- tab2DInit/table-mult (d2) : 4/4 instances valides
+- tabDeclAcces/creer-carres (d2) : 4/4 instances valides
+- tabDeclAcces/extremes (d1) : 4/4 instances valides
+- tabDeclAcces/indice-valide (d2) : 4/4 instances valides
+- tabInsertion/ajout-debut (d2) : 4/4 instances valides
+- tabInsertion/ajout-fin (d2) : 4/4 instances valides
+- tabInsertion/insertion-k (d3) : 4/4 instances valides
+- tabStat/compte-seuil (d2) : 4/4 instances valides
+- tabStat/indice-max (d2) : 4/4 instances valides
+- tabStat/minimum (d1) : 4/4 instances valides
+- tranches/impot-progressif (d4) : 4/4 instances valides
+- tranches/mention (d2) : 4/4 instances valides
+- tranches/tarif-poste (d3) : 4/4 instances valides

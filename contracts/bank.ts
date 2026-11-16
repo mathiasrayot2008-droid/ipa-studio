@@ -107,34 +107,42 @@ export interface Exercise {
 }
 
 // ───────────────────────── Familles (générateur) ─────────────────────────
-/** Défini en TypeScript dans bank/families/<id>.ts ; exécuté au BUILD (Node) pour produire les pools. */
-export interface FamilyDefinition<P = Record<string, unknown>> {
-  id: string;                        // 'strCountChar'
-  title: string;
+/** Valeur JSON d'un test (avant typage) : l'auteur d'une famille écrit des valeurs simples, le build les type d'après `given`. */
+export type FamValue = number | string | boolean | FamValue[];
+export interface FamTest { vis: 'public' | 'hidden' | 'edge'; in: Record<string, FamValue>; scene?: TestCase['scene'] }
+
+/**
+ * Défini en TypeScript dans bank/families/<id>.ts ; exécuté au BUILD (Node + vrai JDK) pour produire les pools.
+ * Une VARIANTE change l'algorithme, la structure des données ou une contrainte (pas seulement des noms ou des nombres).
+ */
+export interface FamilyDefinition<P = unknown> {
+  id: string;                        // 'strCompte'
+  title: string;                     // « Compter des caractères »
   notions: { primary: NotionId; secondary: NotionId[] };
-  prerequisites: NotionId[];
   kind: ExerciseKind;
-  tools: ToolId[];
-  difficultyRange: [number, number];
-  variants: FamilyVariant<P>[];      // transformations ALGORITHMIQUES (pas seulement des noms)
+  variants: FamilyVariant<P>[];
 }
 export interface FamilyVariant<P> {
-  id: string;                        // 'count-in-range'
+  id: string;                        // 'count-char'
+  label: string;                     // « un caractère donné »
   difficulty: 1 | 2 | 3 | 4 | 5;
   estimatedMinutes: number;
-  params(rng: Rng): P;               // tirage déterministe
-  validParams?(p: P): boolean;       // contraintes de validité
-  statement(p: P, names: NamePool): string;          // plusieurs modèles, choisis via rng
-  givenVariables(p: P): Exercise['givenVariables'];
-  expectedVariables(p: P): Exercise['expectedVariables'];
-  starterCode(p: P): string;
-  reference(p: P): string;           // solution Java (fragment)
-  mutants(p: P): { id: string; label: string; explanationFr: string; code: string }[];
-  tests(p: P, rng: Rng): Omit<TestCase, 'expected'>[];   // ≥ 2 public, ≥ 3 hidden, ≥ 1 edge
+  /** Tirage déterministe des paramètres (noms de variables compris, pour que l'énoncé, le code et les tests restent cohérents). */
+  params(rng: Rng): P;
+  valid?(p: P): boolean;
+  statement(p: P): string;           // Markdown
+  given(p: P): { name: string; type: JavaType; description: string }[];
+  expect(p: P): { name: string; type: JavaType; declareOnly?: boolean }[];
+  tools?(p: P): ToolId[];
+  outputFormat?(p: P): string | undefined;
+  starter?(p: P): string;            // défaut : commentaire listant les variables fournies
+  reference(p: P): string;           // solution Java (fragment), validée au build
+  mutants(p: P): { id: string; label: string; explanationFr: string; code: string }[];   // ≥ 2 : chacun DOIT échouer à ≥ 1 test
+  tests(p: P, rng: Rng): FamTest[];  // ≥ 2 publics, ≥ 3 cachés (dont ≥ 1 limite)
   hints(p: P): [string, string, string];
+  compare?: Partial<CompareOptions>;
 }
 export interface Rng { next(): number; int(min: number, max: number): number; pick<T>(a: readonly T[]): T; shuffle<T>(a: T[]): T[] }
-export interface NamePool { variable(kind: 'int' | 'double' | 'String' | 'array'): string; person(): string }
 
 // ───────────────────────── DST ─────────────────────────
 export type Level = 'facile' | 'moyen' | 'difficile';

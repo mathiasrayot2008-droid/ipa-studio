@@ -9,3 +9,4 @@ playwright-report/
 private/
 test-results/
 *.tsbuildinfo
+.cache/
