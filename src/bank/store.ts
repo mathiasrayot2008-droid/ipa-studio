@@ -3,7 +3,6 @@ import { createStore, get, set } from 'idb-keyval';
 import type { Exercise } from '@/types/bank';
 import { useAuth } from '@/data/auth';
 import { firebase } from '@/data/firebase';
-import { FirestoreBank } from './firestoreBank';
 import { LocalBank } from './localBank';
 import type { BankFile, BankHistoryEntry, BankManifest, BankSource } from './types';
 
@@ -33,6 +32,7 @@ async function pickSource(): Promise<{ source: BankSource; manifest: BankManifes
   if (a.configured && a.status === 'signed' && a.cohort) {
     try {
       const { db } = await firebase();
+      const { FirestoreBank } = await import('./firestoreBank');
       const fs = new FirestoreBank(db);
       const m = await fs.getManifest();
       if (m.current) return { source: fs, manifest: m };

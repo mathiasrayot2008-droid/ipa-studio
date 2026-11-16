@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { LocalRepo } from './localRepo';
-import { FirestoreRepo } from './firestoreRepo';
+import type { FirestoreRepo } from './firestoreRepo';
 import { firebase } from './firebase';
 import { isFirebaseConfigured } from './firebaseConfig';
 import type { Repo } from './types';
@@ -53,6 +53,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       try {
         const { auth, db } = await firebase();
         const { onAuthStateChanged } = await import('firebase/auth');
+        const { FirestoreRepo } = await import('./firestoreRepo');   // chargé seulement en mode cloud : Firestore n'alourdit pas le démarrage
         onAuthStateChanged(auth, (u) => {
           if (!u) { set({ status: 'guest', user: null, cohort: false, repo: guestRepo }); return; }
           const repo = new FirestoreRepo(db, u.uid);
@@ -68,6 +69,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     try {
       const { auth, db } = await firebase();
       const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth');
+      const { FirestoreRepo } = await import('./firestoreRepo');
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(cred.user, { displayName: name });
       const repo = new FirestoreRepo(db, cred.user.uid);
@@ -93,8 +95,8 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
   async joinCohort(code) {
     const r = get().repo;
-    if (!(r instanceof FirestoreRepo)) return false;
-    try { await r.ensureProfile(get().user?.displayName ?? 'Étudiant', code); set({ cohort: true, error: null }); return true; }
+    if (r instanceof LocalRepo) return false;   // compte invité : pas de cohorte
+    try { await (r as FirestoreRepo).ensureProfile(get().user?.displayName ?? 'Étudiant', code); set({ cohort: true, error: null }); return true; }
     catch { set({ error: "Code d'invitation incorrect." }); return false; }
   },
   async importGuestData() {

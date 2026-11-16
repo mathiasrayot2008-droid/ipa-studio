@@ -19,7 +19,8 @@
 | T10 | Maîtrise par notion, tableau de bord, progression, historique, entraînement sur mes faiblesses | ✅ Sonnet | modèle Beta(1,2) pondéré (difficulté, nouveauté, récence ; tentative non réussie répétée = poids 0,5 ; pas de facteur temps en DST), agrégat incrémental **identique** au recalcul complet (test unitaire), « acquise » = ≥ 90 % + ≥ 3 familles + réussite récente ; E2E `progress.spec` : DST réel passé dans Chrome, maîtrise stockée = formule recalculée, « — » sans tentative (pas de faux pourcentage) |
 | T11 | « Comprendre mon erreur avec Claude » (sans API) | ✅ Sonnet | prompt français structuré (énoncé, code, tests publics échoués, compilateur, nombre d'échecs cachés, tags), copie + lien `claude.ai/new?q=` (≤ 6000 car., sinon lien simple) ; E2E : aucune requête réseau vers une IA, tests unitaires du prompt |
 | T12 | Fiches de cours N01–N20 | ✅ Sonnet | 20 fiches Java 8 alignées sur les outils réels (affiche, fillCase, rectangle, moveUp…), ancres `#N08`, recherche, lien « S'entraîner (30 min) » par notion ; E2E `fiches.spec` (desktop + mobile 375 px sans débordement) |
-| T13–T15 | PWA/perf (découpage Firebase), CI + déploiement GitHub Pages, audit zéro dépense, tests A–N, tableau final | ⏳ à faire | voir 05-PLAN §7 |
+| T13 | PWA + performance | ✅ Sonnet | Firebase chargé à la demande (mode local : 0 octet Firebase, 331 ko de JS applicatif au démarrage) ; service worker (précache du build via `asset-manifest.json`, cache d'abord pour `assets/`/`java/`, réseau d'abord pour pages et banque, jamais d'interception cross-origin) ; manifeste + icônes (192/512/maskable/apple) ; préchauffage de Java reporté à ≈ 6 s après le chargement. Mesuré (Lighthouse, build de prod) : performance 95, accessibilité 100, bonnes pratiques 100, TBT 200 ms ; tests `pwa.spec.ts` (hors ligne : accueil + fiches s'ouvrent). **Limite** : l'exécution de Java hors ligne exige que le runtime CheerpJ (CDN) soit déjà dans le cache du navigateur. |
+| T14–T15 | CI + déploiement GitHub Pages, audit zéro dépense, tests A–N, tableau final | ⏳ à faire | voir 05-PLAN §7 |
 
 ## Limites connues à ce stade (honnêteté)
 - Premier compile Java ≈ 20–28 s (préchauffage en arrière-plan) ; syntaxe Java 8 uniquement.
@@ -28,7 +29,7 @@
 - Les tests cachés sont lisibles côté client (limite assumée d'une appli sans serveur).
 - Projet Firebase réel et dépôt GitHub : pas encore créés (actions de Mathias) ; tâche du lundi : activer « Require this computer ».
 - Banque Schooding : énoncés/tests/solutions NON publiés dans le dépôt (privés). Chaque étudiant de la cohorte les reçoit depuis Firestore une fois que l'administrateur les a publiés ; sans cela, import d'un fichier sur l'appareil.
-- Bundle Firebase non découpé (avertissement Vite) : à traiter en T13.
+- Bundle Firebase découpé et chargé à la demande (T13 ✅).
 - Les fichiers `secrets/` de la banque IPA Studio sont des fichiers statiques : l'application ne les charge qu'après la remise (ou sur demande d'indice en mode assisté), mais quelqu'un qui devine l'URL peut les lire. Ces exercices sont les nôtres (pas de contenu Schooding protégé).
 - Les fiches de cours sont des résumés de méthode écrits pour IPA Studio (pas des extraits du cours Schooding) ; relecture par Mathias recommandée.
 - Le build Schooding ne calcule pas encore les empreintes d'erreurs-types : la reconnaissance « mutant:… » ne s'applique pour l'instant qu'aux exercices générés.

@@ -47,11 +47,16 @@ function BankInit() {
 
 function JavaWarmUp() {
   // Préchauffage de Java en tâche de fond (1ʳᵉ compilation ≈ 20 s) : prêt quand l'étudiant ouvre un exercice.
+  // Le runtime CheerpJ occupe le fil principal pendant son initialisation : on attend donc que l'écran d'accueil
+  // soit chargé et utilisable (≈ 6 s après la fin du chargement) pour ne pas retarder le premier affichage.
   useEffect(() => {
     if (import.meta.env.VITE_NO_WARMUP) return;
-    const idle = (window as unknown as { requestIdleCallback?: (f: () => void) => void }).requestIdleCallback;
+    const idle = (window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
     const start = () => void javaRunner().warmUp().catch(() => undefined);
-    if (idle) idle(start); else setTimeout(start, 1500);
+    let timer: ReturnType<typeof setTimeout>;
+    const later = () => { timer = setTimeout(() => (idle ? idle(start, { timeout: 4000 }) : start()), 6000); };
+    if (document.readyState === 'complete') later(); else window.addEventListener('load', later, { once: true });
+    return () => { clearTimeout(timer); window.removeEventListener('load', later); };
   }, []);
   return null;
 }

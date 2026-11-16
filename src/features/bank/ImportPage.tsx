@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Card, Page } from '@/app/Page';
 import { previewImport, type ImportPreview } from '@/bank/importer';
 import { localBank, useBank } from '@/bank/store';
-import { FirestoreBank } from '@/bank/firestoreBank';
 import type { BankFile } from '@/bank/types';
 import { useAuth } from '@/data/auth';
 import { firebase } from '@/data/firebase';
@@ -64,6 +63,7 @@ export default function ImportPage() {
 
   const publish = () => run(`Banque « ${preview!.file.version} » publiée pour la cohorte${activateNow ? ' et activée' : ''}.`, async () => {
     const { db } = await firebase();
+    const { FirestoreBank } = await import('@/bank/firestoreBank');
     const fs = new FirestoreBank(db);
     await fs.putVersion(preview!.file as BankFile, preview!.solutions);
     if (activateNow) await fs.activate(preview!.file.version, 'activate');

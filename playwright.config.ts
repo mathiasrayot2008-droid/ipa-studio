@@ -14,10 +14,19 @@ export default defineConfig({
       args: proxy ? [`--proxy-server=${proxy}`, '--proxy-bypass-list=127.0.0.1;localhost'] : [],
     },
   },
-  webServer: {
-    command: 'VITE_E2E=1 npm run build && npx vite preview --port 4173 --strictPort --host 127.0.0.1',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 240_000,
-  },
+  webServer: [
+    {
+      command: 'VITE_E2E=1 npm run build && npx vite preview --port 4173 --strictPort --host 127.0.0.1',
+      url: 'http://127.0.0.1:4173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 240_000,
+    },
+    {
+      // Build de PRODUCTION (sans outils de test, avec service worker) : tests PWA hors ligne et poids au démarrage.
+      command: 'npx vite build --outDir dist-prod --emptyOutDir && npx vite preview --outDir dist-prod --port 4174 --strictPort --host 127.0.0.1',
+      url: 'http://127.0.0.1:4174',
+      reuseExistingServer: !process.env.CI,
+      timeout: 240_000,
+    },
+  ],
 });

@@ -10,3 +10,4 @@ private/
 test-results/
 *.tsbuildinfo
 .cache/
+dist-prod/
