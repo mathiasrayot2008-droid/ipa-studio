@@ -14,11 +14,16 @@ const diff = (k: string) => pool.find((e) => e.key === k)!.difficulty;
 const LEVELS: Level[] = ['facile', 'moyen', 'difficile'];
 
 describe('banque réelle', () => {
-  it('structure : clés uniques, ≥ 12 familles, ≥ 3 variantes par notion couverte à plusieurs niveaux', () => {
+  it('structure : clés uniques, 20 notions couvertes, ≥ 2 variantes par notion, difficultés 1 à 5', () => {
     expect(new Set(pool.map((e) => e.key)).size).toBe(pool.length);
-    expect(index.families.length).toBeGreaterThanOrEqual(12);
+    expect(index.families.length).toBeGreaterThanOrEqual(20);
     const notions = new Set(pool.map((e) => e.notion));
-    expect(notions.size).toBeGreaterThanOrEqual(12);
+    expect(notions.size).toBe(20);
+    for (const n of notions) {
+      const variants = new Set(pool.filter((e) => e.notion === n).map((e) => `${e.familyId}/${e.variantId}`));
+      expect(variants.size, n).toBeGreaterThanOrEqual(2);
+    }
+    expect(new Set(pool.map((e) => e.difficulty))).toEqual(new Set([1, 2, 3, 4, 5]));
   });
 
   it('test E — 2 h : 8 à 15 exercices et Σ ∈ [102 ; 120] min, 3 niveaux', () => {

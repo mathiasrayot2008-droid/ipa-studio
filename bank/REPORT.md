@@ -1,32 +1,68 @@
 # Rapport de validation des pools IPA Studio (ipa-1.0.0)
 
-- 13 familles, 38 variantes, **152 exercices valides**, 13 notions couvertes
-- mutants : 456, tous tués (sinon ❌ ci-dessous)
+- 21 familles, 74 variantes, **296 exercices valides**, 20 notions couvertes
+- mutants : 912, tous tués (sinon ❌ ci-dessous)
 - aucun échec — 0 s
 
 - accumulation/produit-impairs (d3) : 4/4 instances valides
 - accumulation/somme-1-n (d1) : 4/4 instances valides
 - accumulation/somme-multiples (d2) : 4/4 instances valides
+- affectations/deux-rangs (d3) : 4/4 instances valides
+- affectations/echange (d1) : 4/4 instances valides
+- affectations/rotation (d2) : 4/4 instances valides
+- affectations/suivi-solde (d2) : 4/4 instances valides
+- appelsMath/distance-origine (d2) : 4/4 instances valides
+- appelsMath/fraction-simplifiee (d1) : 4/4 instances valides
+- appelsMath/fraction-somme (d3) : 4/4 instances valides
+- appelsMath/perimetre-triangle (d3) : 4/4 instances valides
+- appelsMath/ppcm (d2) : 4/4 instances valides
+- compteurs/compter-multiples (d2) : 4/4 instances valides
+- compteurs/doublon-consecutif (d3) : 4/4 instances valides
+- compteurs/moyenne-positifs (d3) : 4/4 instances valides
+- compteurs/plus-longue-serie (d4) : 4/4 instances valides
 - convUnites/jours-semaines (d1) : 4/4 instances valides
 - convUnites/pouces (d2) : 4/4 instances valides
 - convUnites/sec-hms (d1) : 4/4 instances valides
+- dessinScene/bonhomme (d3) : 4/4 instances valides
+- dessinScene/drapeau (d2) : 4/4 instances valides
+- dessinScene/maison-decalee (d2) : 4/4 instances valides
 - diviseurs/nb-diviseurs (d3) : 4/4 instances valides
 - diviseurs/pgcd-soustractions (d4) : 4/4 instances valides
 - diviseurs/premier (d3) : 4/4 instances valides
+- doubleBoucle/losange (d5) : 4/4 instances valides
+- doubleBoucle/paires-cible (d4) : 4/4 instances valides
+- doubleBoucle/pyramide (d4) : 4/4 instances valides
+- doubleBoucle/somme-produits (d2) : 4/4 instances valides
+- doubleBoucle/triangle-nombres (d3) : 4/4 instances valides
 - grilleMotif/bordure (d3) : 4/4 instances valides
 - grilleMotif/damier (d3) : 4/4 instances valides
 - grilleMotif/diagonales (d4) : 4/4 instances valides
 - minMaxN/deuxieme4 (d3) : 4/4 instances valides
 - minMaxN/max3 (d1) : 4/4 instances valides
 - minMaxN/mediane3 (d2) : 4/4 instances valides
+- predicats/bissextile (d3) : 4/4 instances valides
+- predicats/chevauchement (d4) : 4/4 instances valides
+- predicats/dans-intervalle (d2) : 4/4 instances valides
+- predicats/lettre (d2) : 4/4 instances valides
+- predicats/triangle (d3) : 4/4 instances valides
 - strAcces/dernier (d1) : 4/4 instances valides
 - strAcces/milieu (d2) : 4/4 instances valides
+- strComparaison/anagrammes (d5) : 4/4 instances valides
+- strComparaison/egalite-casse (d2) : 4/4 instances valides
+- strComparaison/indice-mot (d3) : 4/4 instances valides
+- strComparaison/palindrome (d3) : 4/4 instances valides
+- strComparaison/pierre-ciseau-papier (d3) : 4/4 instances valides
 - strCompte/count-char (d2) : 4/4 instances valides
 - strCompte/count-upper (d2) : 4/4 instances valides
 - strCompte/count-vowels (d3) : 4/4 instances valides
 - switchMenu/calculatrice (d3) : 4/4 instances valides
 - switchMenu/jour-semaine (d2) : 4/4 instances valides
 - switchMenu/jours-du-mois (d2) : 4/4 instances valides
+- tab2DConv/aplatir (d3) : 4/4 instances valides
+- tab2DConv/deplier (d4) : 4/4 instances valides
+- tab2DConv/indice-2d (d2) : 4/4 instances valides
+- tab2DConv/transposee (d3) : 4/4 instances valides
+- tab2DConv/transposee-en-place (d5) : 4/4 instances valides
 - tab2DInit/damier (d2) : 4/4 instances valides
 - tab2DInit/somme-lignes (d3) : 4/4 instances valides
 - tab2DInit/table-mult (d2) : 4/4 instances valides

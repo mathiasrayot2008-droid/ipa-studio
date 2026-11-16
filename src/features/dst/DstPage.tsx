@@ -52,7 +52,7 @@ export default function DstPage() {
   const [params] = useSearchParams();
   const preset = useMemo(() => {
     const lv = params.get('level'); const md = params.get('mode'); const sc = params.get('scope');
-    const ids = (params.get('notions') ?? '').split(',').map((p) => NOTIONS.find((n) => n.id.startsWith(p))?.id).filter((x): x is NotionId => Boolean(x));
+    const ids = (params.get('notions') ?? '').split(',').filter((p) => p.length > 0).map((p) => NOTIONS.find((n) => n.id.startsWith(p))?.id).filter((x): x is NotionId => Boolean(x));
     const dur = Number(params.get('dur')); const as = Number(params.get('asof'));
     return {
       scope: sc === 'notion' ? 'notion' as const : 'global' as const, notions: ids,
