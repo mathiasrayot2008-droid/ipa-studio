@@ -29,6 +29,8 @@ export interface ExerciseViewProps {
   onExplain?: () => void;
   readOnly?: boolean;
   fontSize?: number;
+  /** DST : pas de « Vérifier » (la correction complète n'a lieu qu'à la remise). */
+  hideCheck?: boolean;
 }
 
 type Tab = 'enonce' | 'code' | 'resultats';
@@ -101,7 +103,7 @@ export function ExerciseView(p: ExerciseViewProps) {
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-2 py-2">
       <button type="button" onClick={p.onRun} disabled={p.busy} className="touch rounded-lg bg-surface-2 px-4 font-medium hover:bg-border disabled:opacity-50">▶ Exécuter</button>
-      <button type="button" onClick={p.onCheck} disabled={p.busy} className="touch rounded-lg bg-accent px-4 font-semibold text-accent-fg hover:opacity-90 disabled:opacity-50">✔ Vérifier</button>
+      {!p.hideCheck && <button type="button" onClick={p.onCheck} disabled={p.busy} className="touch rounded-lg bg-accent px-4 font-semibold text-accent-fg hover:opacity-90 disabled:opacity-50">✔ Vérifier</button>}
       {p.onReset && <button type="button" onClick={() => { if (confirm('Remettre le code de départ ? Ton code actuel sera perdu.')) p.onReset!(); }} className="touch rounded-lg px-3 text-sm text-muted hover:text-fg">Réinitialiser</button>}
       <span className="ml-auto"><JavaBadge /></span>
     </div>
@@ -110,13 +112,13 @@ export function ExerciseView(p: ExerciseViewProps) {
   const editorEl = (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 p-2">
-        <CodeEditor ref={editor} value={p.code} onChange={p.onCode} theme={theme} fontSize={p.fontSize ?? 15} diagnostics={diags} completions={completions} readOnly={p.readOnly} onRun={p.onRun} onCheck={p.onCheck} />
+        <CodeEditor ref={editor} value={p.code} onChange={p.onCode} theme={theme} fontSize={p.fontSize ?? 15} diagnostics={diags} completions={completions} readOnly={p.readOnly} onRun={p.onRun} onCheck={p.hideCheck ? p.onRun : p.onCheck} />
       </div>
       <MobileKeys editor={editor} />
     </div>
   );
 
-  const resultsEl = <ResultsPanel result={p.result} busy={p.busy} kind={ex.kind} revealExpected={p.revealExpected} lastMode={p.lastMode} onExplain={p.onExplain} />;
+  const resultsEl = <ResultsPanel result={p.result} busy={p.busy} kind={ex.kind} revealExpected={p.revealExpected} lastMode={p.lastMode} onExplain={p.onExplain} canCheck={!p.hideCheck} />;
 
   return (
     <div className="fixed inset-0 z-30 flex flex-col bg-bg md:static md:z-auto md:h-full" data-testid="exercise-view">

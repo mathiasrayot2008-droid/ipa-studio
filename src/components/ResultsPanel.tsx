@@ -25,6 +25,8 @@ interface Props {
   revealExpected?: boolean;
   /** Ce qui a été lancé : « Exécuter » (public seulement) ou « Vérifier » (tout). */
   lastMode?: 'run' | 'check' | null;
+  /** Faux pendant un DST : « Vérifier » n'existe pas avant la remise. */
+  canCheck?: boolean;
   onExplain?: () => void;
   extra?: ReactNode;
 }
@@ -83,9 +85,9 @@ function Visuals({ v, kind }: { v: TestVerdict; kind: Exercise['kind'] }) {
   return null;
 }
 
-export function ResultsPanel({ result, busy, kind, revealExpected = true, lastMode, onExplain, extra }: Props) {
+export function ResultsPanel({ result, busy, kind, revealExpected = true, lastMode, onExplain, extra, canCheck = true }: Props) {
   if (busy) return <div className="p-4 text-sm text-muted" role="status" aria-live="polite">Exécution en cours…</div>;
-  if (!result) return <div className="p-4 text-sm text-muted">Écris ton code puis appuie sur <strong>Exécuter</strong> (tests publics) ou <strong>Vérifier</strong> (tous les tests).</div>;
+  if (!result) return <div className="p-4 text-sm text-muted">Écris ton code puis appuie sur <strong>Exécuter</strong> (tests publics){canCheck ? <> ou <strong>Vérifier</strong> (tous les tests)</> : <>. La correction complète a lieu à la remise du DST.</>}</div>;
   const st = STATUS[result.status];
   const pct = Math.round(result.score * 100);
   return (

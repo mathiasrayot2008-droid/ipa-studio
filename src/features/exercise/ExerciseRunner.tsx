@@ -18,6 +18,7 @@ export interface ExerciseRunnerProps {
   belowStatement?: ReactNode;
   revealExpected?: boolean;
   readOnly?: boolean;
+  hideCheck?: boolean;
   onExplain?: (r: CheckResult, code: string) => void;
   /** Enregistre brouillon (30 s) et tentatives dans le dépôt de l'étudiant (local ou compte). */
   persist?: { context: 'tp' | 'entrainement' | 'dst'; dstId?: string; hintsUsed?: 0 | 1 | 2 | 3; solutionShown?: boolean; bankVersion?: string };
@@ -77,7 +78,7 @@ export function ExerciseRunner(p: ExerciseRunnerProps) {
       onRun={() => void go('run')} onCheck={() => void go('check')}
       onReset={() => { setCode(p.exercise.starterCode); p.onCode?.(p.exercise.starterCode); setResult(null); }}
       onBack={p.onBack} header={p.header} belowStatement={p.belowStatement}
-      revealExpected={p.revealExpected} readOnly={p.readOnly}
+      revealExpected={p.revealExpected} readOnly={p.readOnly} hideCheck={p.hideCheck}
       onExplain={p.onExplain ? () => p.onExplain!(result!, code) : undefined}
     />
   );

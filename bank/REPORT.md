@@ -2,7 +2,7 @@
 
 - 13 familles, 38 variantes, **152 exercices valides**, 13 notions couvertes
 - mutants : 456, tous tués (sinon ❌ ci-dessous)
-- aucun échec — 3 s
+- aucun échec — 0 s
 
 - accumulation/produit-impairs (d3) : 4/4 instances valides
 - accumulation/somme-1-n (d1) : 4/4 instances valides

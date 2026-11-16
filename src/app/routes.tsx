@@ -11,6 +11,8 @@ const Settings = lazy(() => import('@/features/settings/Settings'));
 const TpList = lazy(() => import('@/features/tp/TpList'));
 const TpDetail = lazy(() => import('@/features/tp/TpDetail'));
 const ImportPage = lazy(() => import('@/features/bank/ImportPage'));
+const DstPage = lazy(() => import('@/features/dst/DstPage'));
+const DstRun = lazy(() => import('@/features/dst/DstRun'));
 const Atelier = lazy(() => import('@/features/atelier/Atelier'));
 const E2EExercise = import.meta.env.VITE_E2E ? lazy(() => import('@/features/exercise/E2EExercise')) : null;
 
@@ -64,7 +66,8 @@ export function AppRoutes() {
           <Route path="tp/:key" element={<TpDetail />} />
           <Route path="importer" element={<ImportPage />} />
           <Route path="entrainement/*" element={<Soon title="Entraînement ciblé" />} />
-          <Route path="dst/*" element={<Soon title="DST" />} />
+          <Route path="dst" element={<DstPage />} />
+          <Route path="dst/:id" element={<DstRun />} />
           <Route path="historique/*" element={<Soon title="Historique" />} />
           <Route path="progression" element={<Soon title="Progression" />} />
           <Route path="fiches/*" element={<Soon title="Fiches de cours" />} />

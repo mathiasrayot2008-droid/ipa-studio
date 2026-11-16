@@ -19,6 +19,8 @@ export const EMPTY_MASTERY: MasteryDoc = { notions: {}, errorTagCounts: {}, tota
 export interface Draft { code: string; updatedAt: number }
 
 export type DstStatus = 'running' | 'submitted';
+/** Résultat d'un exercice à la remise. status 'non-rendu' : aucun code écrit (0 point, aucune tentative enregistrée). */
+export interface DstItemResult { score: number; passed: number; total: number; status: string; errorTags?: string[]; failedTests?: string[]; message?: string }
 export interface DstRecord {
   subject: DstSubject;
   status: DstStatus;
@@ -29,7 +31,7 @@ export interface DstRecord {
   answers: Record<string, string>;
   hintsUsed: Record<string, 0 | 1 | 2 | 3>;
   solutionShown: Record<string, boolean>;
-  results?: Record<string, { score: number; passed: number; total: number; status: string }>;
+  results?: Record<string, DstItemResult>;
   grade?: { points: number; outOf: number; note20: number };
   updatedAt: number;
 }
