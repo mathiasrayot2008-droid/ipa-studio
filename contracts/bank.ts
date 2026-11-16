@@ -58,13 +58,17 @@ export interface TestCase {
 }
 export interface ExpectedResult {
   vars?: Record<string, JavaValue>;
-  affiche?: string[];
-  grid?: string[];                                 // une chaîne par ligne, 1 caractère par case ('.' vide, 'b' bleu…)
-  canvasHash?: string;                             // SHA-256 du raster
+  out?: string;                                    // texte produit par affiche* (avec \n), comparé ligne à ligne
+  grid?: string[];                                 // une chaîne par ligne, 1 lettre par case (w blanc, k noir, r rouge, g vert, b bleu…)
+  canvas?: { w: number; h: number; rle: number[] };// raster compressé : paires (couleur, longueur)
   runnerReached?: boolean;
   exception?: string;                              // rarement : exception attendue
 }
-export interface CompareOptions { trimLines: boolean; ignoreTrailingEmptyLines: boolean; caseSensitive: boolean; doubleTolerance: number }
+export interface CompareOptions {
+  trimLines: boolean; ignoreTrailingEmptyLines: boolean; caseSensitive: boolean; doubleTolerance: number;
+  /** Toile : part maximale de pixels différents (0 = égalité exacte ; ex. 0.002 pour les tracés trigonométriques). */
+  pixelTolerance?: number;
+}
 export interface RunnerMap { width: number; height: number; start: [number, number]; goal: [number, number]; walls: [number, number][] }
 
 // ───────────────────────── Exercice concret ─────────────────────────

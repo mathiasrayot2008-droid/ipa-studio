@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>IPA Studio — exécuteur Java</title>
+<!--
+  Iframe d'exécution : charge CheerpJ (JVM WebAssembly, licence Community gratuite, usage personnel/éducatif),
+  puis exécute le harnais Java (ECJ + ASM). Dialogue avec l'appli par postMessage (même origine).
+  Protocole : {id, type:'init'|'check'|'main', ...} → {id, ok, json?|error?} ; message {type:'ready'} quand prêt.
+-->
+<script src="https://cjrtnc.leaningtech.com/5.0/loader.js"></script>
+</head>
+<body>
+<script>
+(function () {
+  var base = location.pathname.replace(/[^/]*$/, ''); // ex. '/ipa-studio/'
+  var J = '/app' + base + 'java/';
+  var OPTS = '-1.8 -bootclasspath ' + J + 'stub-rt.jar -classpath ' + J + 'ipa-harness.jar';
+  var H = null;
+  var chain = Promise.resolve();
+
+  function post(m) { parent.postMessage(m, location.origin); }
+
+  async function init() {
+    var t0 = performance.now();
+    await cheerpjInit({ version: 17, javaProperties: ['ipa.work=/files'] });
+    var lib = await cheerpjRunLibrary(J + 'ipa-harness.jar:' + J + 'ecj.jar:' + J + 'asm.jar');
+    H = await lib.ipa.Harness;
+    return Math.round(performance.now() - t0);
+  }
+  var ready = init();
+  ready.then(function (ms) { post({ type: 'ready', initMs: ms }); },
+             function (e) { post({ type: 'fatal', error: String(e && (e.stack || e)) }); });
+
+  window.addEventListener('message', function (ev) {
+    if (ev.origin !== location.origin || ev.source !== parent) return;
+    var m = ev.data;
+    if (!m || typeof m.id !== 'number') return;
+    // Une requête à la fois : la JVM est partagée.
+    chain = chain.then(async function () {
+      try {
+        await ready;
+        var json;
+        if (m.type === 'check') json = await H.check(m.packed, m.mainClass, m.perTestMs | 0, m.totalMs | 0, OPTS);
+        else if (m.type === 'main') json = await H.runMain(m.packed, m.mainClass, m.stdin || '', m.totalMs | 0, OPTS);
+        else if (m.type === 'init') json = '{"phase":"init"}';
+        else throw new Error('type inconnu : ' + m.type);
+        post({ id: m.id, ok: true, json: json });
+      } catch (e) {
+        post({ id: m.id, ok: false, error: String(e && (e.stack || e)) });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

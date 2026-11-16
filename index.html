@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="description" content="IPA Studio : entraînement au module IPA Java (ESIEE Paris)." />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>IPA Studio</title>
+    <script>
+      // Thème avant le premier rendu (évite le flash). Sombre par défaut.
+      try {
+        var t = localStorage.getItem('ipa.theme') || 'dark';
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
