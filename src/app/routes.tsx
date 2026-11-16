@@ -5,8 +5,12 @@ import { Page } from './Page';
 import { javaRunner } from '@/java/runner';
 import { useAuth } from '@/data/auth';
 import { useTheme } from './theme';
+import { useBank } from '@/bank/store';
 
 const Settings = lazy(() => import('@/features/settings/Settings'));
+const TpList = lazy(() => import('@/features/tp/TpList'));
+const TpDetail = lazy(() => import('@/features/tp/TpDetail'));
+const ImportPage = lazy(() => import('@/features/bank/ImportPage'));
 const Atelier = lazy(() => import('@/features/atelier/Atelier'));
 const E2EExercise = import.meta.env.VITE_E2E ? lazy(() => import('@/features/exercise/E2EExercise')) : null;
 
@@ -26,6 +30,15 @@ function AuthInit() {
   return null;
 }
 
+/** Charge la banque d'exercices au démarrage, puis la recharge si le compte (donc la source) change. */
+function BankInit() {
+  const status = useAuth((s) => s.status);
+  const cohort = useAuth((s) => s.cohort);
+  const load = useBank((b) => b.load);
+  useEffect(() => { if (status !== 'loading') void load(); }, [status, cohort, load]);
+  return null;
+}
+
 function JavaWarmUp() {
   // Préchauffage de Java en tâche de fond (1ʳᵉ compilation ≈ 20 s) : prêt quand l'étudiant ouvre un exercice.
   useEffect(() => {
@@ -41,12 +54,15 @@ export function AppRoutes() {
   return (
     <HashRouter>
       <AuthInit />
+      <BankInit />
       <JavaWarmUp />
       <Suspense fallback={<div className="p-6 text-muted">Chargement…</div>}>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Soon title="Tableau de bord" />} />
-          <Route path="tp/*" element={<Soon title="TP Schooding" />} />
+          <Route path="tp" element={<TpList />} />
+          <Route path="tp/:key" element={<TpDetail />} />
+          <Route path="importer" element={<ImportPage />} />
           <Route path="entrainement/*" element={<Soon title="Entraînement ciblé" />} />
           <Route path="dst/*" element={<Soon title="DST" />} />
           <Route path="historique/*" element={<Soon title="Historique" />} />

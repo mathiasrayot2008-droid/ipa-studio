@@ -76,6 +76,7 @@ export function runnerTests(map: { width: number; height: number; walls: [number
     if (opts.lPaths && !(clear(L(sx, sy, gx, gy, true)) && clear(L(sx, sy, gx, gy, false)))) throw new Error(`runnerTests : trajet en L bloqué pour ${[sx, sy, gx, gy]}`);
     if (wall.has(`${sx},${sy}`) || wall.has(`${gx},${gy}`)) throw new Error('runnerTests : départ ou but sur un mur');
     const vis: SpecTest['vis'] = k < (opts.nPublic ?? 2) ? 'public' : 'hidden';
-    return { vis, in: opts.inputs === false ? {} : { startX: sx, startY: sy, goalX: gx, goalY: gy }, runner: { width: map.width, height: map.height, start: [sx, sy], goal: [gx, gy], walls: map.walls } };
+    const input: Record<string, number> = opts.inputs === false ? {} : { startX: sx, startY: sy, goalX: gx, goalY: gy };
+    return { vis, in: input, runner: { width: map.width, height: map.height, start: [sx, sy], goal: [gx, gy], walls: map.walls } };
   });
 }

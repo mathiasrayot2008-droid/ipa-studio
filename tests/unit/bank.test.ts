@@ -3,7 +3,7 @@ import { createStore } from 'idb-keyval';
 import { LocalBank } from '@/bank/localBank';
 import { LocalRepo } from '@/data/localRepo';
 import { validateBank } from '@/bank/diff';
-import { bankContract, V1, V2 } from '../helpers/bankContract';
+import { bankContract, SOL1, V1, V2 } from '../helpers/bankContract';
 
 let n = 0;
 bankContract('LocalBank (IndexedDB)', async () => {
@@ -32,5 +32,23 @@ describe('import de banque et progression de l’étudiant', () => {
     expect(() => validateBank({ ...V1, exercises: [V1.exercises[0], V1.exercises[0]] })).toThrow(/double/);
     expect(() => validateBank({ ...V1, sessions: [{ number: 1, title: 'x', exerciseKeys: ['sch-99'] }] })).toThrow(/inconnu/);
     expect(() => validateBank(V1)).not.toThrow();
+  });
+});
+
+import { previewImport } from '@/bank/importer';
+
+describe('aperçu d’import', () => {
+  it('calcule le diff sans rien écrire et compte les fidélités', () => {
+    const p = previewImport(JSON.stringify(V2), undefined, V1);
+    expect(p.diff.added).toEqual(['sch-4']);
+    expect(p.diff.changed).toEqual(['sch-2']);
+    expect(p.fidelity).toEqual({ exact: 3 });
+    expect(p.missingSolutions).toHaveLength(3);
+  });
+  it('refuse un JSON invalide, une banque incohérente et des solutions d’une autre version', () => {
+    expect(() => previewImport('{pas du json', undefined, undefined)).toThrow(/JSON valide/);
+    expect(() => previewImport('{}', undefined, undefined)).toThrow(/invalide/);
+    expect(() => previewImport(JSON.stringify(V2), JSON.stringify(SOL1), undefined)).toThrow(/ne correspond pas/);
+    expect(previewImport(JSON.stringify(V1), JSON.stringify(SOL1), undefined).missingSolutions).toEqual([]);
   });
 });

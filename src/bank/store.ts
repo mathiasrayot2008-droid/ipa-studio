@@ -5,7 +5,7 @@ import { useAuth } from '@/data/auth';
 import { firebase } from '@/data/firebase';
 import { FirestoreBank } from './firestoreBank';
 import { LocalBank } from './localBank';
-import type { BankFile, BankManifest, BankSource } from './types';
+import type { BankFile, BankHistoryEntry, BankManifest, BankSource } from './types';
 
 const cache = createStore('ipa-studio:bank-cache', 'kv');
 export const localBank = new LocalBank();
@@ -21,6 +21,8 @@ interface BankState {
   error: string | null;
   load(): Promise<void>;
   solution(key: string): Promise<string | undefined>;
+  /** Active une version (import, mise à jour ou retour arrière) puis recharge la banque. */
+  activate(version: string, action: BankHistoryEntry['action']): Promise<void>;
 }
 
 let src: BankSource | null = null;
@@ -67,6 +69,13 @@ export const useBank = create<BankState>((setS, getS) => ({
     const ex = s.byKey.get(key);
     if (!src || !s.version || !ex) return undefined;
     return src.getSolution(s.version, key, ex.provenance.session ?? 0);
+  },
+
+  async activate(version, action) {
+    if (!src) await getS().load();
+    if (!src) throw new Error('Aucune source de banque disponible.');
+    await src.activate(version, action);
+    await getS().load();
   },
 }));
 

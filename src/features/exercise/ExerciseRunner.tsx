@@ -20,7 +20,7 @@ export interface ExerciseRunnerProps {
   readOnly?: boolean;
   onExplain?: (r: CheckResult, code: string) => void;
   /** Enregistre brouillon (30 s) et tentatives dans le dépôt de l'étudiant (local ou compte). */
-  persist?: { context: 'tp' | 'entrainement' | 'dst'; dstId?: string };
+  persist?: { context: 'tp' | 'entrainement' | 'dst'; dstId?: string; hintsUsed?: 0 | 1 | 2 | 3; solutionShown?: boolean; bankVersion?: string };
 }
 
 const crash = (msg: string): CheckResult => ({ status: 'crash', score: 0, passed: 0, total: 0, diagnostics: [], verdicts: [], errorTags: ['internal'], debug: '', stdout: '', internalError: msg });
