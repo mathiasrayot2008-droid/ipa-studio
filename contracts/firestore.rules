@@ -1,0 +1,70 @@
+rules_version = '2';
+// IPA Studio 2.0 — règles Firestore (brouillon validé en conception ; à tester avec l'émulateur en phase 2)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function isAdmin() {
+      return signedIn() && request.auth.uid in get(/databases/$(database)/documents/config/admins).data.uids;
+    }
+    function inCohort() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.cohort == 'esiee-ipa-2026';
+    }
+    function smallString(s, max) { return s is string && s.size() <= max; }
+
+    // Configuration : jamais lisible par les clients (le code d'invitation y est stocké).
+    match /config/{doc} {
+      allow read: if false;
+      allow write: if false;            // modifiée à la main dans la console Firebase
+    }
+
+    // Profil : chacun ne voit et n'écrit que le sien.
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName', 'createdAt', 'settings', 'cohort', 'inviteCode'])
+        && smallString(request.resource.data.displayName, 40)
+        && (!('cohort' in request.resource.data) || validInvite());
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'settings', 'cohort', 'inviteCode'])
+        && smallString(request.resource.data.displayName, 40)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['cohort']) || validInvite());
+      allow delete: if isOwner(uid);
+
+      function validInvite() {
+        return request.resource.data.cohort == 'esiee-ipa-2026'
+          && request.resource.data.inviteCode == get(/databases/$(database)/documents/config/cohort).data.code;
+      }
+
+      // Données privées : tentatives, brouillons, DST, statistiques.
+      match /{sub=**} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid);   // documents < 1 Mio (limite Firestore) ; brouillons découpés par exercice
+      }
+    }
+
+    // Exercices Schooding originaux : cohorte uniquement ; écriture admin (import).
+    match /schooding/{version}/{rest=**} {
+      allow read: if inCohort() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Journal des imports versionnés (lisible par la cohorte pour l'historique des mises à jour).
+    match /imports/{importId} {
+      allow read: if inCohort() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Statistiques globales anonymes (recalibrage des temps) : incréments seulement.
+    match /stats/{variantKey} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['n', 'sumLogSec', 'updatedAt']);
+      allow update: if signedIn()
+        && request.resource.data.keys().hasOnly(['n', 'sumLogSec', 'updatedAt'])
+        && request.resource.data.n == resource.data.n + 1;
+    }
+  }
+}

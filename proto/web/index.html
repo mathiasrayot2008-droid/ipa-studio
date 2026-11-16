@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><title>proto</title>
+<script src="https://cjrtnc.leaningtech.com/5.0/loader.js"></script></head>
+<body><pre id="log"></pre>
+<script>
+const log = (...a) => { document.getElementById('log').textContent += a.join(' ') + '\n'; console.log(...a); };
+window.results = {};
+const T1 = `public class Main {
+  static int somme(int[] t){ int s=0; for(int x:t) s+=x; return s; }
+  public static void main(String[] a){
+    int[] t={3,1,4,1,5,9,2,6}; String mot="Bonjour";
+    for(int i=0;i<3;i++){ if(i%2==0) System.out.println("pair "+i); else System.out.println("impair "+i); }
+    System.out.println("somme="+somme(t)+" maj="+mot.toUpperCase()+" len="+mot.length());
+    int[][] m={{1,2},{3,4}}; System.out.println(m[1][0]+m[0][1]);
+  }
+}`;
+const T2 = `public class Main { public static void main(String[] a){ int x = "a"; } }`;
+const T3 = `public class Main { public static void main(String[] a){ long i=0; while(true){i++;} } }`;
+const T4 = `public class Main { public static void main(String[] a){ int[] t=new int[2]; t[5]=1; } }`;
+(async () => {
+  try {
+    const t0 = performance.now();
+    await cheerpjInit({ version: 17, javaProperties: ["ipa.work=/files"] });
+    log('init ms', Math.round(performance.now()-t0));
+    const lib = await cheerpjRunLibrary("/app/harness.jar:/app/ecj.jar:/app/asm.jar");
+    const H = await lib.ipa.Harness;
+    log('lib ms', Math.round(performance.now()-t0));
+    let OPTS = null;
+    for (const o of ["-1.8 -bootclasspath /app/stub-rt.jar"]) {
+      const r = JSON.parse(await H.run2("Main.java\u0001" + T1, "Main", "", 3000, o));
+      log('OPT', o, JSON.stringify(r).slice(0,300));
+      if (r.phase === 'run' && r.stdout) { OPTS = o; break; }
+    }
+    window.results.opts = OPTS;
+    for (const [k, src] of Object.entries({T1, T2, T3, T4})) {
+      const s = performance.now();
+      const r = await H.run2("Main.java\u0001" + src, "Main", "", 3000, OPTS || "-17");
+      window.results[k] = { ms: Math.round(performance.now()-s), r: JSON.parse(r) };
+      log(k, window.results[k].ms, r);
+    }
+    // Réactivité de la page pendant une boucle infinie
+    window.results.done = true;
+  } catch (e) { log('ERR', e && (e.stack || e)); window.results.error = String(e); window.results.done = true; }
+})();
+</script></body></html>
