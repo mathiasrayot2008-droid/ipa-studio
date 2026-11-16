@@ -12,7 +12,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 
 const sh = (cmd: string, args: string[]) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
-const tracked = sh('git', ['ls-files']).split('\n').filter(Boolean);
+const tracked = sh('git', ['ls-files']).split('\n').filter((f) => f && existsSync(f));
 const results: { ok: boolean; label: string; detail: string }[] = [];
 const check = (label: string, ok: boolean, detail: string) => results.push({ ok, label, detail });
 
@@ -58,6 +58,7 @@ check('Aucun secret ni clé d’API dans les fichiers suivis', leaks.length === 
 // 4. hôtes externes
 const ALLOWED = new Set([
   'cjrtnc.leaningtech.com',        // runtime CheerpJ (licence Community, gratuit)
+  'cheerpj.com',                   // lien d'attribution « Built with CheerpJ » (Réglages → À propos), jamais appelé par le code
   'claude.ai',                     // bouton « Comprendre mon erreur » : ouvre claude.ai/new?q=… (aucune API, aucune clé)
   'www.schooding.fr', 'schooding.fr', // texte de documentation uniquement (liens affichés, jamais appelés)
   'repo1.maven.org',               // documentation/scripts de build locaux (jars)

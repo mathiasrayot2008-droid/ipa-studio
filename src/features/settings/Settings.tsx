@@ -149,6 +149,13 @@ export default function Settings() {
           </div>
           {msg && <p className="mt-2 text-sm" role="status">{msg}</p>}
         </Card>
+        <Card>
+          <h2 className="mb-2 text-lg font-semibold">À propos</h2>
+          <p className="text-sm text-muted">
+            Java s’exécute dans ton navigateur grâce à <a className="text-accent underline" href="https://cheerpj.com" target="_blank" rel="noreferrer">CheerpJ</a> (Leaning Technologies) — Built with CheerpJ.
+            Projet d’entraînement personnel, gratuit, sans publicité ; non affilié à Schooding.
+          </p>
+        </Card>
       </div>
     </Page>
   );
