@@ -13,7 +13,7 @@ const base = new URL('./', self.location.href).pathname;
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const shell = await caches.open(SHELL);
-    await shell.addAll([base, `${base}favicon.svg`, `${base}manifest.webmanifest`]);
+    await shell.addAll([base, `${base}favicon.svg`, `${base}manifest.webmanifest`, `${base}runner.html`]);
     // Tous les fichiers du build (liste écrite par vite.config.ts) : l'application entière s'ouvre ensuite sans réseau.
     try {
       const list = await (await fetch(`${base}asset-manifest.json`, { cache: 'no-store' })).json();
@@ -48,7 +48,13 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.location.origin) return;                       // jamais d'interception d'un autre site
   if (req.headers.has('range')) return;                                  // requêtes partielles : laissées au navigateur
   const path = url.pathname;
-  if (req.mode === 'navigate') { e.respondWith(networkFirst(new Request(base), SHELL)); return; }
+  // runner.html est une page à part (iframe qui héberge Java) : elle ne doit JAMAIS être remplacée par le shell de l'appli.
+  if (path === `${base}runner.html`) { e.respondWith(networkFirst(req, SHELL)); return; }
+  // Navigation vers l'appli (page d'accueil ou index.html) : réseau d'abord, copie du shell si hors ligne.
+  if (req.mode === 'navigate') {
+    if (path === base || path === `${base}index.html`) e.respondWith(networkFirst(new Request(base), SHELL));
+    return;
+  }
   if (path.startsWith(`${base}assets/`) || path.startsWith(`${base}java/`)) { e.respondWith(cacheFirst(req, STATIC)); return; }
-  if (path.startsWith(`${base}bank/`) || path === `${base}manifest.webmanifest` || path === `${base}runner.html`) { e.respondWith(networkFirst(req, STATIC)); return; }
+  if (path.startsWith(`${base}bank/`) || path === `${base}manifest.webmanifest`) { e.respondWith(networkFirst(req, STATIC)); return; }
 });

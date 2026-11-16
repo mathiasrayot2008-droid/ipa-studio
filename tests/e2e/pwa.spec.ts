@@ -11,9 +11,14 @@ test('démarrage léger : aucun code Firebase chargé en mode local', async ({ p
     const body = await r.body().catch(() => Buffer.alloc(0));
     js.push({ url: r.url(), bytes: body.length, cloud: body.toString('utf8').includes('firestore.googleapis.com') });
   });
+  const hosts = new Set<string>();
+  page.on('request', (r) => { try { const u = new URL(r.url()); if (/^https?:$/.test(u.protocol)) hosts.add(u.host); } catch { /* data:, blob: */ } });
   await page.goto('/#/');
   await expect(page.getByTestId('home-global')).toBeVisible();
+  await page.waitForTimeout(12_000);                                          // laisse démarrer le préchauffage de Java (≈ 6 s après le chargement)
   await page.waitForLoadState('networkidle');
+  // Test L (côté exécution) : en mode local, le navigateur ne contacte que l'application elle-même et le CDN gratuit de CheerpJ.
+  expect([...hosts].filter((h) => h !== '127.0.0.1:4174').sort()).toEqual(['cjrtnc.leaningtech.com']);
   expect(js.length).toBeGreaterThan(3);
   expect(js.filter((x) => x.cloud), 'le SDK Firestore ne doit pas être téléchargé hors mode cloud').toHaveLength(0);
   const total = js.reduce((s, x) => s + x.bytes, 0);
@@ -58,4 +63,23 @@ test('PWA : manifeste valide, icônes présentes, application ouverte hors ligne
   await page.reload();
   await expect(page.getByTestId('home-global')).toBeVisible();
   await context.setOffline(false);
+});
+
+test('Java s’exécute AVEC le service worker actif (runner.html n’est pas remplacé par le shell)', async ({ page }) => {
+  test.setTimeout(300_000);
+  await page.goto('/#/');
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await page.goto('/#/atelier');
+  await page.locator('.cm-content').first().click();
+  await page.keyboard.press('ControlOrMeta+a');
+  await page.keyboard.press('Delete');
+  await page.evaluate((c) => {
+    const el = document.querySelector('.cm-content')!;
+    const dt = new DataTransfer(); dt.setData('text/plain', c);
+    el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+  }, 'public class Main { public static void main(String[] a) { int s = 0; for (int i = 1; i <= 4; i++) s += i; System.out.println("somme=" + s); } }');
+  await page.getByRole('button', { name: /Exécuter/ }).click();
+  await expect(page.getByTestId('atelier-stdout')).toHaveText('somme=10\n', { timeout: 200_000 });
 });

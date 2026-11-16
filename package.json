@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:rules": "firebase emulators:exec --only firestore --project demo-ipa-studio \"vitest run -c vitest.rules.config.ts\"",
     "test:e2e": "playwright test",
-    "test:e2e:accounts": "firebase emulators:exec --only auth,firestore --project demo-ipa-studio \"playwright test -c playwright.firebase.config.ts\""
+    "test:e2e:accounts": "firebase emulators:exec --only auth,firestore --project demo-ipa-studio \"playwright test -c playwright.firebase.config.ts\"",
+    "audit:zero": "tsx scripts/audit-zero-depense.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.4",
