@@ -5,6 +5,8 @@ import { Page } from '@/app/Page';
 import { Markdown } from '@/components/Markdown';
 import { useBank } from '@/bank/store';
 import { ExerciseRunner } from '@/features/exercise/ExerciseRunner';
+import { ExplainDialog } from '@/features/explain/ExplainDialog';
+import { fromCheck, type ExplainInput } from '@/features/explain/prompt';
 import { FidelityBadge } from './badges';
 
 function Notes({ ex }: { ex: Exercise }) {
@@ -48,17 +50,19 @@ function TpExercise({ ex, prev, next, version }: { ex: Exercise; prev?: string; 
   const nav = useNavigate();
   const [hints, setHints] = useState<0 | 1 | 2 | 3>(0);
   const [solution, setSolution] = useState<string | null>(null);
+  const [explain, setExplain] = useState<ExplainInput | null>(null);
   const persist = useMemo(() => ({ context: 'tp' as const, hintsUsed: hints, solutionShown: solution !== null, bankVersion: version }), [hints, solution, version]);
-  return (
+  return (<>
     <ExerciseRunner
-      exercise={ex} persist={persist} onBack={() => nav('/tp')}
+      exercise={ex} persist={persist} onBack={() => nav('/tp')} onExplain={(r, code) => setExplain(fromCheck(ex, code, r))}
       header={<span className="flex gap-1">
         {prev ? <Link to={`/tp/${prev}`} className="touch inline-flex items-center rounded-lg px-2 text-muted hover:text-fg" aria-label="Exercice précédent">‹</Link> : null}
         {next ? <Link to={`/tp/${next}`} className="touch inline-flex items-center rounded-lg px-2 text-muted hover:text-fg" aria-label="Exercice suivant" data-testid="next-ex">›</Link> : null}
       </span>}
       belowStatement={<div className="space-y-3"><Notes ex={ex} /><Assist ex={ex} hints={hints} setHints={setHints} solution={solution} setSolution={setSolution} /></div>}
     />
-  );
+    {explain && <ExplainDialog input={explain} onClose={() => setExplain(null)} />}
+  </>);
 }
 
 export default function TpDetail() {

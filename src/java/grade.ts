@@ -41,6 +41,10 @@ export interface CheckResult {
   internalError?: string;
 }
 
+/** Sortie identique aux espaces, à la casse et à la ponctuation de présentation près. */
+const squash = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[\s,;:.!?]+/g, '');
+export const sameModuloFormat = (expected: string, got: string) => expected !== got && squash(expected) === squash(got) && squash(expected).length > 0;
+
 export const DEFAULT_WEIGHT: Record<TestCase['visibility'], number> = { public: 1, hidden: 2, edge: 2 };
 
 function diag(raw: { line: number; msg: string }, code: string, proj: BuiltProject): FrDiagnostic {
@@ -97,6 +101,7 @@ export function grade(
     else if (m.kind === 'timeout') tags.add('runtime:timeout');
     else if (m.kind === 'hidden') continue;
     else if (m.kind === 'var') tags.add(`wrong:var-${m.reason}`);
+    else if (m.kind === 'out' && sameModuloFormat(m.expected, m.got)) tags.add('output:format'); // bonne sortie, mauvaise présentation (espaces, casse, accents)
     else tags.add(`wrong:${m.kind}`);
   }
   const wsum = verdicts.reduce((s, v) => s + v.weight, 0) || 1;

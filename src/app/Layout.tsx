@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { NAV, MOBILE_PRIMARY } from './nav';
 
@@ -43,7 +44,7 @@ export default function Layout() {
 
       <main id="main" className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <div className="fade-in mx-auto h-full w-full max-w-6xl">
-          <Outlet />
+          <Suspense fallback={<div className="p-6 text-muted" role="status">Chargement…</div>}><Outlet /></Suspense>
         </div>
       </main>
 

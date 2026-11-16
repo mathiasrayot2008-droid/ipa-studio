@@ -6,6 +6,8 @@ import { useAuth } from '@/data/auth';
 import type { DstRecord } from '@/data/types';
 import { loadFullExercise } from '@/bank/ipaPool';
 import { Markdown } from '@/components/Markdown';
+import { ExplainDialog } from '@/features/explain/ExplainDialog';
+import { fromDstItem, type ExplainInput } from '@/features/explain/prompt';
 import { gradeDst, HINT_PENALTIES } from '@/engine/scoring';
 import { formatClock, startRecord } from './dstLogic';
 
@@ -21,6 +23,7 @@ export default function DstResult({ record }: { id?: string; record: DstRecord }
   const repo = useAuth((a) => a.repo);
   const [exs, setExs] = useState<Record<string, Exercise> | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [explain, setExplain] = useState<ExplainInput | null>(null);
   const { subject } = record;
 
   useEffect(() => {
@@ -88,6 +91,7 @@ export default function DstResult({ record }: { id?: string; record: DstRecord }
                     {r?.message && <p className="rounded-lg border border-border bg-surface-2 p-3"><strong>Problème signalé :</strong> {r.message}</p>}
                     {r?.failedTests?.length ? <p className="text-muted">Tests échoués : {r.failedTests.map((t) => `${t} (${TEST_KIND[t[0]!] ?? 'test'})`).join(', ')}.</p> : null}
                     {known.map((m) => <p key={m.id} className="rounded-lg border border-warn p-3" data-testid="known-error"><strong>Erreur courante reconnue :</strong> {m.label}. {m.explanationFr}</p>)}
+                    {ex && r && r.status !== 'reussi' && <button type="button" onClick={() => setExplain(fromDstItem(ex, record.answers[it.exerciseKey] ?? '', r))} className="touch rounded-lg border border-accent px-3 py-2 text-accent hover:bg-accent hover:text-accent-fg" data-testid={`explain-${i}`}>Comprendre mon erreur avec Claude</button>}
                     {ex && <div><div className="mb-1 font-semibold">Énoncé</div><Markdown text={ex.statementMd} /></div>}
                     <div><div className="mb-1 font-semibold">Ton code</div><pre className="overflow-x-auto rounded-lg border border-border bg-surface-2 p-3 font-mono text-xs">{record.answers[it.exerciseKey]?.trim() || '(rien d’écrit)'}</pre></div>
                     {ex && <div><div className="mb-1 font-semibold">Solution de référence</div><pre className="overflow-x-auto rounded-lg border border-border bg-surface-2 p-3 font-mono text-xs">{ex.referenceSolution}</pre><p className="mt-1 text-xs text-muted">Une autre solution est correcte si elle réussit tous les tests.</p></div>}
@@ -98,6 +102,7 @@ export default function DstResult({ record }: { id?: string; record: DstRecord }
           })}
         </ol>
       </div>
+      {explain && <ExplainDialog input={explain} onClose={() => setExplain(null)} />}
     </Page>
   );
 }

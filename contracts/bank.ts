@@ -183,4 +183,14 @@ export interface Attempt {
   errorTags: string[];               // 'compile:undefined-variable', 'runtime:aioobe', 'mutant:off-by-one'…
   createdAt: string; bankVersion: string;
 }
-export interface NotionMastery { evidence: number; weightSum: number; distinctFamiliesSucceeded: number; lastSuccessAt?: string; estimate: number }
+export interface NotionMastery {
+  /** Σ w·e et Σ w, tels qu'à la date MasteryDoc.updatedAt (la récence est un facteur exponentiel : on décale les deux sommes du même facteur à la lecture). */
+  evidence: number; weightSum: number;
+  distinctFamiliesSucceeded: number;
+  /** Familles (ou exercices Schooding) réussies : sert à compter les familles distinctes sans relire l'historique. */
+  families?: string[];
+  lastSuccessAt?: string;
+  /** Dernière réussite sur un exercice jamais réussi auparavant (condition « acquise »). */
+  lastNewSuccessAt?: string;
+  estimate: number;
+}

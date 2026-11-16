@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import type { DstConfig, DstMode, DstSubject, Level, NotionId } from '@/types/bank';
 import { Card, Page } from '@/app/Page';
 import { useAuth } from '@/data/auth';
@@ -48,13 +48,26 @@ export default function DstPage() {
   const [history, setHistory] = useState<{ id: string; record: DstRecord }[] | null>(null);
   const [settingsSession, setSettingsSession] = useState<number | null>(null);
 
-  const [scope, setScope] = useState<DstConfig['scope']>('global');
-  const [notions, setNotions] = useState<NotionId[]>([]);
-  const [duration, setDuration] = useState(60);
-  const [level, setLevel] = useState<Level>('moyen');
-  const [mode, setMode] = useState<DstMode>('examen');
+  // Préréglage par l'adresse (ex. « Entraînement sur mes faiblesses ») : l'étudiant voit l'aperçu avant de commencer.
+  const [params] = useSearchParams();
+  const preset = useMemo(() => {
+    const lv = params.get('level'); const md = params.get('mode'); const sc = params.get('scope');
+    const ids = (params.get('notions') ?? '').split(',').map((p) => NOTIONS.find((n) => n.id.startsWith(p))?.id).filter((x): x is NotionId => Boolean(x));
+    const dur = Number(params.get('dur')); const as = Number(params.get('asof'));
+    return {
+      scope: sc === 'notion' ? 'notion' as const : 'global' as const, notions: ids,
+      duration: dur >= DST_MIN && dur <= DST_MAX ? dur : 60, level: (['facile', 'moyen', 'difficile'] as const).find((x) => x === lv) ?? 'moyen',
+      mode: (['examen', 'assiste'] as const).find((x) => x === md) ?? 'examen', asOf: as >= 1 && as <= 9 ? as : null, auto: params.get('auto') === '1',
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const [scope, setScope] = useState<DstConfig['scope']>(preset.scope);
+  const [notions, setNotions] = useState<NotionId[]>(preset.notions);
+  const [duration, setDuration] = useState(preset.duration);
+  const [level, setLevel] = useState<Level>(preset.level);
+  const [mode, setMode] = useState<DstMode>(preset.mode);
   const [adaptive, setAdaptive] = useState(true);
-  const [asOf, setAsOf] = useState<number | null>(null);
+  const [asOf, setAsOf] = useState<number | null>(preset.asOf);
   const [seedInput, setSeedInput] = useState('');
   const [preview, setPreview] = useState<DstSubject | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -87,6 +100,12 @@ export default function DstPage() {
       setPreview(null); setErr(e instanceof Error ? e.message : String(e));
     } finally { setBusy(false); }
   }, [config, repo, scope, notions, seedInput]);
+
+  const autoDone = useRef(false);
+  useEffect(() => {
+    if (!preset.auto || autoDone.current || !index || status === 'loading') return;
+    autoDone.current = true; void prepare();
+  }, [preset.auto, index, status, prepare]);
 
   const start = useCallback(async () => {
     if (!preview) return;

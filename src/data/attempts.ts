@@ -1,5 +1,6 @@
 import type { Attempt, Exercise } from '@/types/bank';
 import type { CheckResult } from '@/java/grade';
+import { applyEvidence, evidenceOf, familyOfKey } from '@/engine/mastery';
 import type { Repo, TpProgressEntry } from './types';
 
 export interface AttemptContext {
@@ -23,7 +24,7 @@ export function buildAttempt(ex: Pick<Exercise, 'key' | 'provenance'>, r: CheckR
 }
 
 /** Enregistre une tentative (tests complets) et met à jour la progression de l'exercice. Renvoie l'entrée de progression. */
-export async function recordAttempt(repo: Repo, ex: Pick<Exercise, 'key' | 'provenance'>, r: CheckResult, code: string, c: AttemptContext): Promise<TpProgressEntry> {
+export async function recordAttempt(repo: Repo, ex: Pick<Exercise, 'key' | 'provenance' | 'notions' | 'difficulty' | 'estimatedMinutes'>, r: CheckResult, code: string, c: AttemptContext): Promise<TpProgressEntry> {
   const progress = await repo.getProgress();
   const prev = progress[ex.key];
   const a = buildAttempt(ex, r, code, c, { attempts: prev?.attempts ?? 0 });
@@ -36,5 +37,11 @@ export async function recordAttempt(repo: Repo, ex: Pick<Exercise, 'key' | 'prov
     updatedAt: Date.now(),
   };
   await repo.setProgressEntry(ex.key, entry);
+  // Maîtrise par notion : agrégat incrémental (aucune relecture de l'historique).
+  const wasSucceeded = prev?.status === 'reussi';
+  const next = applyEvidence(await repo.getMastery(), evidenceOf(a, ex, { succeededBefore: wasSucceeded }), {
+    now: Date.now(), familyId: familyOfKey(ex.key), isNewSuccess: r.status === 'reussi' && !wasSucceeded, errorTags: r.errorTags, success: r.status === 'reussi',
+  });
+  await repo.setMastery(next);
   return entry;
 }
