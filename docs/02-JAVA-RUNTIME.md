@@ -62,7 +62,7 @@ Chaque outil = `{ id, signature, descriptionFr, javaSource, renderer? }`. Le gab
 | `affiche` | `void affiche(String message)` | **Deux variantes selon l'exercice** (`newline: true|false` dans la config d'outil). Avec retour à la ligne (défaut, 17 exercices : « …puis retourne à la ligne »), sans (« …sans passer à la ligne » : 539, 541 ; énoncé « Affiche la chaîne… » sans précision : 2931, 2934, 2936, **à trancher à l'import en lisant l'énoncé**). La variante est copiée de la description Schooding de l'exercice, jamais devinée |
 | `afficheEntier` | `void afficheEntier(int i)` | idem `affiche` (même drapeau `newline`) ; 559–563 : description sans précision ⇒ `newline` lu dans l'énoncé |
 | `afficheReel` | `void afficheReel(double d)` | 4484 : réel + retour à la ligne ; 2931 : « avec 3 décimales » (`String.format(Locale.ROOT,"%.3f")`) |
-| `afficheReels` | `void afficheReels(double f, double g)` | 2931 : f et g à 3 décimales, l'un après l'autre |
+| `afficheReels` | `void afficheReels(double f, double g)` | 2931 : f et g à 3 décimales, l'un après l'autre : IPA Studio affiche « f g » séparés par une espace (la description Schooding ne précise pas le séparateur) ; la correction de 2931 ignore la mise en forme des blancs (`collapseWhitespace`) |
 | `afficheBooleen` | `void afficheBooleen(boolean b)` | 4484 : `true`/`false` + retour à la ligne |
 | `debug` | `void debug(T value)` surcharges `int,long,double,float,char,boolean,String,Object` | ajoute à `dbg` (non noté). Présent dans 74 exercices sur 79 |
 | `PI` | `static final double PI` | `3.1415926536` (10 décimales, comme l'outil Schooding) |

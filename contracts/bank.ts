@@ -68,6 +68,8 @@ export interface CompareOptions {
   trimLines: boolean; ignoreTrailingEmptyLines: boolean; caseSensitive: boolean; doubleTolerance: number;
   /** Toile : part maximale de pixels différents (0 = égalité exacte ; ex. 0.002 pour les tracés trigonométriques). */
   pixelTolerance?: number;
+  /** Sortie texte : compare les « mots » séparés par des blancs (retours à la ligne ou espaces indifférents). À n'utiliser que si l'énoncé ne fixe pas la mise en forme. */
+  collapseWhitespace?: boolean;
 }
 export interface RunnerMap { width: number; height: number; start: [number, number]; goal: [number, number]; walls: [number, number][] }
 
@@ -83,7 +85,8 @@ export interface Exercise {
   estimatedMinutes: number;
   tools: ToolConfig[];
   givenVariables: { name: string; type: JavaType; description: string }[];
-  expectedVariables: { name: string; type: JavaType }[];
+  /** declareOnly : la variable doit exister avec ce type mais n'est pas lue (déclarée « non initialisée » dans l'énoncé). */
+  expectedVariables: { name: string; type: JavaType; declareOnly?: boolean }[];
   starterCode: string;               // ex. « //str est une chaîne de caractères déjà déclarée et initialisée »
   outputFormat?: string;             // exigences de format en clair
   compare: CompareOptions;
@@ -92,7 +95,15 @@ export interface Exercise {
   referenceSolution: string;         // validée au build
   mutants?: { id: string; label: string; explanationFr: string }[];   // empreintes (pas le code)
   mutantFingerprints?: Record<string, Record<string, string>>;       // mutantId → testId → hash sortie
-  provenance: { source: string; importedAt?: string; schoodingId?: number; session?: number; bankVersion: string };
+  provenance: {
+    source: string; importedAt?: string; schoodingId?: number; session?: number; order?: number; bankVersion: string;
+    /** Fidélité à l'exercice Schooding d'origine (cf. docs/06) : exact = énoncé et tests entièrement déterminés par l'énoncé ;
+     *  assets-recreated = schéma/carte/code de départ absents de l'export et recréés ; reconstructed = comportement déduit du code enregistré de l'étudiant ;
+     *  unavailable = énoncé seul, pas de correction automatique. */
+    fidelity?: 'exact' | 'assets-recreated' | 'reconstructed' | 'unavailable';
+    /** Choix et ambiguïtés, affichés à l'étudiant (« À propos de cet exercice »). */
+    notes?: string[];
+  };
 }
 
 // ───────────────────────── Familles (générateur) ─────────────────────────

@@ -7,7 +7,7 @@ export interface ExecSpec {
   kind: ExerciseKind;
   tools: ToolConfig[];
   givenVariables: { name: string; type: JavaType }[];
-  expectedVariables: { name: string; type: JavaType }[];
+  expectedVariables: { name: string; type: JavaType; declareOnly?: boolean }[];
   tests: Pick<TestCase, 'id' | 'inputs' | 'scene'>[];
 }
 
@@ -46,7 +46,8 @@ export function buildProject(spec: ExecSpec, studentCode: string, opts: BuildOpt
   const params = spec.givenVariables.map((v) => `${v.type} ${v.name}`).join(', ');
   const header = ['import java.util.*;', 'public class Exercice extends __Env {', `static void __run(${params}) {`];
   const code = studentCode.replace(/\r\n?/g, '\n').replace(/^﻿/, '');
-  const caps = spec.expectedVariables.map((v) => `ipa.Cap.v("${v.name}", ${v.name});`).join(' ');
+  // declareOnly : on affecte « (Type) null » pour vérifier existence + type SANS lire la variable (Java refuse de lire une variable non initialisée).
+  const caps = spec.expectedVariables.map((v) => (v.declareOnly ? `${v.name} = (${v.type}) null;` : `ipa.Cap.v("${v.name}", ${v.name});`)).join(' ');
 
   const calls = spec.tests.map((t) => {
     const args = spec.givenVariables.map((v) => {

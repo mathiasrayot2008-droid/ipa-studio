@@ -14,7 +14,7 @@ export const TOOLS: Record<ToolId, Gen> = {
   affiche: (c) => `static void affiche(String message) { ipa.Env.print(message, ${nl(c)}); }`,
   afficheEntier: (c) => `static void afficheEntier(int i) { ipa.Env.printInt(i, ${nl(c)}); }`,
   afficheReel: (c) => `static void afficheReel(double d) { ipa.Env.printReal(d, ${dec(c)}, ${nl(c)}); }`,
-  afficheReels: (c) => `static void afficheReels(double f, double g) { ipa.Env.printReal(f, ${dec(c)}, false); ipa.Env.printReal(g, ${dec(c)}, ${nl(c)}); }`,
+  afficheReels: (c) => `static void afficheReels(double f, double g) { ipa.Env.printReal(f, ${dec(c)}, false); ipa.Env.print(" ", false); ipa.Env.printReal(g, ${dec(c)}, ${nl(c)}); }`,
   afficheBooleen: (c) => `static void afficheBooleen(boolean b) { ipa.Env.printBool(b, ${nl(c)}); }`,
   debug: () =>
     ['int', 'long', 'float', 'double', 'char', 'boolean', 'String']

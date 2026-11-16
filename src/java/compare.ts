@@ -29,6 +29,7 @@ function sameValue(type: string, a: unknown, b: unknown, tol: number): boolean {
 export function normalizeOut(s: string, o: CompareOptions): string[] {
   let lines = s.replace(/\r\n?/g, '\n').split('\n');
   if (lines.length && lines[lines.length - 1] === '') lines.pop(); // le dernier \n ne crée pas de ligne
+  if (o.collapseWhitespace) lines = [lines.join(' ').split(/\s+/).filter(Boolean).join(' ')];
   if (o.trimLines) lines = lines.map((l) => l.trim());
   if (o.ignoreTrailingEmptyLines) while (lines.length && lines[lines.length - 1] === '') lines.pop();
   if (!o.caseSensitive) lines = lines.map((l) => l.toLowerCase());
@@ -87,8 +88,9 @@ export function compareTest(exp: ExpectedResult, act: HarnessTestResult, opts: C
 }
 
 /** Résultat « attendu » extrait d'une exécution de la solution de référence (fabrication des tests). */
-export function expectedFrom(act: HarnessTestResult, kind: string, vars: { name: string; type: string }[]): ExpectedResult {
+export function expectedFrom(act: HarnessTestResult, kind: string, allVars: { name: string; type: string; declareOnly?: boolean }[]): ExpectedResult {
   const e: ExpectedResult = {};
+  const vars = allVars.filter((v) => !v.declareOnly);
   if (vars.length) {
     e.vars = {};
     for (const v of vars) {
