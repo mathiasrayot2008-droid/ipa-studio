@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-ipa-studio \"vitest run -c vitest.rules.config.ts\"",
+    "test:e2e": "playwright test",
+    "test:e2e:accounts": "firebase emulators:exec --only auth,firestore --project demo-ipa-studio \"playwright test -c playwright.firebase.config.ts\""
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.4",
@@ -21,6 +24,7 @@
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
     "@lezer/highlight": "^1.2.5",
+    "firebase": "^13.3.0",
     "idb-keyval": "^6.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -29,14 +33,18 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "fake-indexeddb": "^6.2.8",
+    "firebase-tools": "^15.36.0",
     "jsdom": "^31.0.1",
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",

@@ -1,5 +1,5 @@
 rules_version = '2';
-// IPA Studio 2.0 — règles Firestore (brouillon validé en conception ; à tester avec l'émulateur en phase 2)
+// IPA Studio 2.0 — règles Firestore. Testées avec l'émulateur : `npm run test:rules` (tests/rules/).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -40,7 +40,9 @@ service cloud.firestore {
       }
 
       // Données privées : tentatives, brouillons, DST, statistiques.
-      match /{sub=**} {
+      // ATTENTION : `{sub=**}` seul s'appliquerait AUSSI au document users/{uid} (le joker récursif accepte
+      // zéro segment) et contournerait les restrictions ci-dessus. On exige donc au moins deux segments.
+      match /{col}/{docId=**} {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid);   // documents < 1 Mio (limite Firestore) ; brouillons découpés par exercice
       }

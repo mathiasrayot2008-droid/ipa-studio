@@ -23,5 +23,5 @@ const EX: Exercise = {
 };
 
 export default function E2EExercise() {
-  return <ExerciseRunner exercise={EX} />;
+  return <ExerciseRunner exercise={EX} persist={{ context: 'tp' }} />;
 }

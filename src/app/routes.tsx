@@ -3,13 +3,29 @@ import Layout from './Layout';
 import { lazy, Suspense, useEffect } from 'react';
 import { Page } from './Page';
 import { javaRunner } from '@/java/runner';
+import { useAuth } from '@/data/auth';
+import { useTheme } from './theme';
 
+const Settings = lazy(() => import('@/features/settings/Settings'));
 const Atelier = lazy(() => import('@/features/atelier/Atelier'));
 const E2EExercise = import.meta.env.VITE_E2E ? lazy(() => import('@/features/exercise/E2EExercise')) : null;
 
 const Soon = ({ title }: { title: string }) => <Page title={title}>Écran en cours de construction.</Page>;
 
 // HashRouter : GitHub Pages ne sait pas servir de routes profondes (pas de réécriture 404 → index).
+/** Initialise le compte au démarrage et applique les réglages enregistrés (thème). */
+function AuthInit() {
+  const init = useAuth((s) => s.init);
+  const repo = useAuth((s) => s.repo);
+  const status = useAuth((s) => s.status);
+  useEffect(() => { init(); }, [init]);
+  useEffect(() => {
+    if (status === 'loading') return;
+    void repo.getSettings().then((s) => { if (s.theme !== useTheme.getState().theme) useTheme.getState().setTheme(s.theme); }).catch(() => undefined);
+  }, [repo, status]);
+  return null;
+}
+
 function JavaWarmUp() {
   // Préchauffage de Java en tâche de fond (1ʳᵉ compilation ≈ 20 s) : prêt quand l'étudiant ouvre un exercice.
   useEffect(() => {
@@ -24,6 +40,7 @@ function JavaWarmUp() {
 export function AppRoutes() {
   return (
     <HashRouter>
+      <AuthInit />
       <JavaWarmUp />
       <Suspense fallback={<div className="p-6 text-muted">Chargement…</div>}>
       <Routes>
@@ -36,7 +53,7 @@ export function AppRoutes() {
           <Route path="progression" element={<Soon title="Progression" />} />
           <Route path="fiches/*" element={<Soon title="Fiches de cours" />} />
           <Route path="atelier" element={<Atelier />} />
-          <Route path="parametres" element={<Soon title="Paramètres" />} />
+          <Route path="parametres" element={<Settings />} />
           {E2EExercise && <Route path="e2e/exercise" element={<E2EExercise />} />}
           <Route path="*" element={<Page title="Page introuvable" />} />
         </Route>

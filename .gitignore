@@ -6,3 +6,6 @@ private/
 test-results/
 playwright-report/
 build/
+dist-fb/
+firestore-debug.log
+*.log
