@@ -23,6 +23,9 @@
 
   async function init() {
     var t0 = performance.now();
+    // Préchauffe le cache du CDN : un 1er accès « à froid » répond 200 à une requête Range (CheerpJ refuse alors de démarrer).
+    var jars = ['stub-rt.jar', 'ipa-harness.jar', 'ecj.jar', 'asm.jar'];
+    await Promise.all(jars.map(function (f) { return fetch(base + 'java/' + f).then(function (r) { return r.arrayBuffer(); }).catch(function () {}); }));
     await cheerpjInit({ version: 17, javaProperties: ['ipa.work=/files'] });
     var lib = await cheerpjRunLibrary(J + 'ipa-harness.jar:' + J + 'ecj.jar:' + J + 'asm.jar');
     H = await lib.ipa.Harness;
