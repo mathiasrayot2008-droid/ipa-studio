@@ -30,7 +30,8 @@ export default function Dashboard() {
   const worked = eligible.filter((n) => (mastery.notions[n.id]?.weightSum ?? 0) > 0).length;
   const acquired = eligible.filter((n) => levelOf(mastery.notions[n.id], mastery.updatedAt, now) === 'acquise').length;
   const weak = weakestNotions(mastery, available, asOf, now, 3);
-  const tpDone = Object.values(progress).filter((p) => p.status === 'reussi').length;
+  // Même règle que la page TP : on ne compte que les exercices de la banque installée (pas les réussites de DST sur des exercices générés).
+  const tpDone = (bank?.exercises ?? []).filter((e) => progress[e.key]?.status === 'reussi').length;
   const tpTotal = bank?.exercises.length ?? 0;
   const running = dsts.filter((d) => d.record.status === 'running');
   const lastDst = dsts.find((d) => d.record.status === 'submitted');

@@ -81,12 +81,28 @@ export function ExerciseView(p: ExerciseViewProps) {
           <ul className="space-y-1 text-sm">{ex.givenVariables.map((v) => <li key={v.name}><code className="font-mono">{v.type} {v.name}</code>{v.description && <span className="text-muted"> — {v.description}</span>}</li>)}</ul>
         </section>
       )}
-      {ex.expectedVariables.length > 0 && (
-        <section>
-          <h3 className="mb-1 font-semibold">Variables à déclarer</h3>
-          <ul className="space-y-1 text-sm">{ex.expectedVariables.map((v) => <li key={v.name}><code className="font-mono">{v.type} {v.name}</code></li>)}</ul>
-        </section>
-      )}
+      {(() => {
+        const given = new Set(ex.givenVariables.map((g) => g.name));
+        const toDeclare = ex.expectedVariables.filter((v) => !given.has(v.name));
+        const toSet = ex.expectedVariables.filter((v) => given.has(v.name));
+        return (
+          <>
+            {toDeclare.length > 0 && (
+              <section>
+                <h3 className="mb-1 font-semibold">Variables à déclarer</h3>
+                <ul className="space-y-1 text-sm">{toDeclare.map((v) => <li key={v.name}><code className="font-mono">{v.type} {v.name}</code></li>)}</ul>
+              </section>
+            )}
+            {toSet.length > 0 && (
+              <section>
+                <h3 className="mb-1 font-semibold">Variables à modifier</h3>
+                <p className="mb-1 text-sm text-muted">Déjà déclarées : leur valeur finale sera vérifiée.</p>
+                <ul className="space-y-1 text-sm">{toSet.map((v) => <li key={v.name}><code className="font-mono">{v.type} {v.name}</code></li>)}</ul>
+              </section>
+            )}
+          </>
+        );
+      })()}
       {ex.outputFormat && <section><h3 className="mb-1 font-semibold">Format de sortie</h3><Markdown text={ex.outputFormat} className="text-sm" /></section>}
       {ex.tools.length > 0 && (
         <section>
