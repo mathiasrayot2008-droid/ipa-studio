@@ -9,7 +9,7 @@ export type EvalMode = 'run' | 'check';
 
 export const LIMITS = { perTestMs: 2000, totalMs: 8000 };
 
-type Gradable = Pick<Exercise, 'kind' | 'tools' | 'givenVariables' | 'expectedVariables' | 'tests' | 'compare'> & Partial<Pick<Exercise, 'key' | 'mutantFingerprints'>>;
+type Gradable = Pick<Exercise, 'kind' | 'tools' | 'givenVariables' | 'expectedVariables' | 'tests' | 'compare'> & Partial<Pick<Exercise, 'key' | 'mutantFingerprints' | 'member' | 'rules'>>;
 
 /**
  * « Exécuter » (mode run) : tests PUBLICS seulement, détails visibles.
@@ -17,7 +17,7 @@ type Gradable = Pick<Exercise, 'kind' | 'tools' | 'givenVariables' | 'expectedVa
  * Notation 100 % fonctionnelle : on ne compare jamais le code de l'étudiant à une solution.
  */
 export async function evaluate(ex: Gradable, code: string, mode: EvalMode, backend: JavaBackend = javaRunner()): Promise<CheckResult> {
-  const pre = precheck(code);
+  const pre = precheck(code, ex.rules);
   if (pre) return pre;
   const tests: TestCase[] = mode === 'run' ? ex.tests.filter((t) => t.visibility === 'public') : ex.tests;
   const project = buildProject(specOf(ex, tests), code, LIMITS);

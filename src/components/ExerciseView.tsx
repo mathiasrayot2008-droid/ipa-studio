@@ -74,7 +74,13 @@ export function ExerciseView(p: ExerciseViewProps) {
         </div>
       </div>
       <Markdown text={ex.statementMd} />
-      {ex.givenVariables.length > 0 && (
+      {ex.kind === 'members' && (
+        <section>
+          <h3 className="mb-1 font-semibold">Ce que tu écris</h3>
+          <p className="text-sm text-muted">Écris uniquement la fonction (ou procédure) demandée, avec exactement le nom et les paramètres de l’énoncé : tes tests l’appellent avec plusieurs valeurs. Pas de variables fournies ici.</p>
+        </section>
+      )}
+      {ex.kind !== 'members' && ex.givenVariables.length > 0 && (
         <section>
           <h3 className="mb-1 font-semibold">Variables fournies</h3>
           <p className="mb-1 text-sm text-muted">Déjà déclarées et initialisées : ne les redéclare pas.</p>
@@ -83,6 +89,7 @@ export function ExerciseView(p: ExerciseViewProps) {
       )}
       {(() => {
         const given = new Set(ex.givenVariables.map((g) => g.name));
+        if (ex.kind === 'members') return null;
         const toDeclare = ex.expectedVariables.filter((v) => !given.has(v.name));
         const toSet = ex.expectedVariables.filter((v) => given.has(v.name));
         return (

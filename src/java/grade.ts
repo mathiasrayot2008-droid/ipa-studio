@@ -59,10 +59,30 @@ function diag(raw: { line: number; msg: string }, code: string, proj: BuiltProje
   return { line: Math.max(1, Math.min(proj.studentLines, sline)), tag: 'compile:template', fr: base.fr, hint: base.hint, original: raw.msg };
 }
 
-/** Échec avant même de lancer Java : accolades/parenthèses déséquilibrées. */
-export function precheck(code: string): CheckResult | null {
+/** Code sans commentaires ni contenu des chaînes/caractères : sert à vérifier les règles de l'énoncé (« pas de if »…). */
+export function stripCode(code: string): string {
+  return code
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/\/\/[^\n]*/g, '')
+    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
+    .replace(/'(?:[^'\\\n]|\\.)*'/g, "' '");
+}
+
+/** Échec avant même de lancer Java : accolades/parenthèses déséquilibrées, ou règle de l'énoncé enfreinte (`rules`). */
+export function precheck(code: string, rules: { re: string; fr: string }[] = []): CheckResult | null {
   const b = checkBalance(code);
-  if (!b) return null;
+  if (!b) {
+    const bare = stripCode(code);
+    for (const r of rules) {
+      if (new RegExp(r.re).test(bare)) {
+        return {
+          status: 'interdit', score: 0, passed: 0, total: 0, verdicts: [], debug: '', stdout: '',
+          diagnostics: [], errorTags: ['forbidden:rule'], forbidden: r.fr,
+        };
+      }
+    }
+    return null;
+  }
   const line = code.replace(/\r\n?/g, '\n').split('\n')[b.line - 1];
   return {
     status: 'compilation', score: 0, passed: 0, total: 0, verdicts: [], debug: '', stdout: '',

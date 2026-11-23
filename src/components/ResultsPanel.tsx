@@ -102,7 +102,7 @@ export function ResultsPanel({ result, busy, kind, revealExpected = true, lastMo
         {result.compileMs !== undefined && <span className="text-xs text-muted">compilation {Math.round(result.compileMs)} ms</span>}
       </div>
 
-      {result.status === 'interdit' && <p>Ton code utilise une API non autorisée dans cet exercice : <code>{result.forbidden}</code>.</p>}
+      {result.status === 'interdit' && (result.errorTags.includes('forbidden:rule') ? <p>Une contrainte de l’énoncé n’est pas respectée : {result.forbidden}</p> : <p>Ton code utilise une API non autorisée dans cet exercice : <code>{result.forbidden}</code>.</p>)}
       {result.status === 'crash' && <p>{result.internalError ?? 'Le moteur Java a rencontré un problème. Réessaie.'}</p>}
 
       {result.diagnostics.map((d, i) => (

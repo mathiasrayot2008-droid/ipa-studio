@@ -33,3 +33,10 @@ Déclenché chaque **lundi à 9 h (Europe/Paris)** par une tâche planifiée Cla
   peut inventorier et préparer l'export, mais pas reconstruire la banque ;
 - Chrome ouvert sur Schooding (session connectée) avec l'extension Claude, et la tâche réglée sur « Require this
   computer » dans l'application de bureau Claude.
+
+## Annales (examens passés)
+- Les annales du cours précédent (course 610, « Examens passés ») forment une « séance » numérotée **100** (affichée « Annales » dans TP Schooding) ; leurs exercices ont les clés `sch-6101NN` (NN = numéro dans l'examen : E2.6 → `sch-610106`).
+- Même procédure que les TP : export JSON (section « Examens »), spécifications privées (`private/specs/s_annales.ts`), construction avec `DUMP=<export fusionné> BANK_VERSION=<version> npx tsx scripts/schooding/build.ts`. Les corrections sont rédigées au niveau E1 (rien d'autre que ce qui est vu en cours) et validées par le vrai JDK ; les « Correction » de Schooding ne sont jamais lues ni copiées.
+- **Exercices « écrire une fonction »** (`kind: 'members'`) : le code de l'étudiant est placé au niveau de la classe ; la spécification donne `member.call` (appel de test, ex. `estChiffre(c)`) et `member.result` (type retourné, capturé sous le nom `resultat`). La fonction peut être écrite avec ou sans `static`.
+- **Règles de l'énoncé** (`rules`) : regex testées sur le code sans commentaires ni chaînes (« pas de if », « pas de Math », « pas d'espace avant la parenthèse »). Le moteur refuse le code avec le message de la règle ; la spécification doit fournir au moins un `breaks` qui l'enfreint.
+- Manquants à ce jour : Exam v2 E2.7 et E2.9 (énoncé illisible) et tout le Partiel V2.

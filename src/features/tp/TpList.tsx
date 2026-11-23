@@ -72,7 +72,7 @@ export default function TpList() {
           return (
             <details key={s.number} open={i === 0 || Boolean(needle) || filter !== 'tous'} className="rounded-xl border border-border bg-surface" data-testid={`session-${s.number}`}>
               <summary className="touch flex cursor-pointer items-center gap-3 px-4 py-2 font-semibold">
-                <span>Séance {s.number}</span><span className="min-w-0 flex-1 truncate font-normal text-muted">{s.title}</span>
+                {s.number >= 100 ? <span>Annales</span> : <span>Séance {s.number}</span>}<span className="min-w-0 flex-1 truncate font-normal text-muted">{s.title}</span>
                 <span className="text-sm font-normal text-muted">{ok}/{s.exerciseKeys.length}</span>
               </summary>
               <ul className="divide-y divide-border border-t border-border">

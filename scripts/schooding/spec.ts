@@ -42,6 +42,12 @@ export interface Spec {
   alts?: string[];
   /** Erreurs classiques : ne doivent PAS obtenir 100 %. */
   wrong?: { label: string; code: string }[];
+  /** kind 'members' : appel de la fonction de l'étudiant (les variables `given` sont ses arguments) ; `result` = type retourné. */
+  member?: { call: string; result?: import('@/types/bank').JavaType };
+  /** Règles de l'énoncé vérifiées sur le code (regex sur le code sans commentaires ni chaînes). */
+  rules?: { re: string; fr: string }[];
+  /** Code qui enfreint une règle : doit être refusé. */
+  breaks?: { label: string; code: string }[];
   fidelity: Fidelity;
   notes?: string[];
   canvas?: { width: number; height: number };

@@ -87,6 +87,10 @@ export interface Exercise {
   givenVariables: { name: string; type: JavaType; description: string }[];
   /** declareOnly : la variable doit exister avec ce type mais n'est pas lue (déclarée « non initialisée » dans l'énoncé). */
   expectedVariables: { name: string; type: JavaType; declareOnly?: boolean }[];
+  /** Exercices « écrire une fonction/procédure » (kind 'members') : appel de test généré par le harnais (les variables fournies sont les arguments). */
+  member?: { call: string; result?: JavaType };
+  /** Règles de l'énoncé vérifiées sur le code (comme « pas de if », « pas de Math », « pas d'espace avant la parenthèse ») : regex testée sur le code sans commentaires ni chaînes. */
+  rules?: { re: string; fr: string }[];
   starterCode: string;               // ex. « //str est une chaîne de caractères déjà déclarée et initialisée »
   outputFormat?: string;             // exigences de format en clair
   compare: CompareOptions;

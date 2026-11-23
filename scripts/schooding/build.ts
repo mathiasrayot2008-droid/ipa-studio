@@ -99,7 +99,7 @@ const short = (r: CheckResult) => `${r.status} ${r.passed}/${r.total} (${Math.ro
 const detail = (r: CheckResult) => r.verdicts.filter((v) => !v.passed).slice(0, 2).map((v) => `\n  - ${v.id}: ${JSON.stringify(v.mismatches).slice(0, 300)}${v.actual ? ' | sortie=' + JSON.stringify(v.actual.out).slice(0, 120) : ''}`).join('');
 
 async function main() {
-  const dump = JSON.parse(readFileSync(path.join(root, 'private/schooding-export-2026-11-16.json'), 'utf8')) as { exercises: RawEx[]; sessions: RawSession[] };
+  const dump = JSON.parse(readFileSync(path.join(root, process.env.DUMP ?? 'private/schooding-export-2026-11-16.json'), 'utf8')) as { exercises: RawEx[]; sessions: RawSession[] };
   const { default: specs } = (await import(path.join(root, 'private/specs/index.ts'))) as { default: Spec[] };
   const byId = new Map(specs.map((s) => [s.id, s]));
   if (byId.size !== specs.length) throw new Error('Spécifications en double');
@@ -136,7 +136,7 @@ async function main() {
       if (extra.length) throw new Error(`${key} test ${k} : entrées inconnues ${extra.join(', ')}`);
       return { id: `${prefix}${n}`, visibility: t.vis, inputs, scene: sceneOf(spec, t) } as Omit<TestCase, 'expected' | 'weight'>;
     });
-    const execSpec: ExecSpec = { kind, tools, givenVariables: given, expectedVariables: expected, tests: tests0 };
+    const execSpec: ExecSpec = { kind, tools, givenVariables: given, expectedVariables: expected, tests: tests0, member: spec.member };
     const compare = { ...DEFAULT_COMPARE, ...spec.compare };
 
     let tests: TestCase[] = [];
@@ -146,6 +146,8 @@ async function main() {
     } else {
       // 1. référence → sorties attendues
       try {
+        const refPre = precheck(spec.ref, spec.rules);
+        if (refPre) throw new Error('la référence enfreint une règle : ' + refPre.forbidden);
         const r = await runJava(execSpec, spec.ref);
         tests = withExpected(execSpec, tests0, r.output);
         const g = grade(r.output, r.project, spec.ref, tests, compare);
@@ -154,7 +156,7 @@ async function main() {
       } catch (e) { ok = false; log(`- ❌ référence : ${(e as Error).message}`); }
 
       const check = async (code: string) => {
-        const pre = precheck(code);
+        const pre = precheck(code, spec.rules);
         if (pre) return pre;
         const r = await runJava(execSpec, code);
         return grade(r.output, r.project, code, tests, compare);
@@ -164,6 +166,11 @@ async function main() {
           const g = await check(a);
           log(`- alternative ${i + 1} : ${short(g)}${g.status === 'reussi' ? '' : ' ❌' + detail(g)}`);
           if (g.status !== 'reussi') ok = false;
+        }
+        for (const b of spec.breaks ?? []) {
+          const g = await check(b.code);
+          log(`- règle enfreinte « ${b.label} » : ${g.status}${g.status === 'interdit' ? '' : ' ❌ (devrait être refusé)'}`);
+          if (g.status !== 'interdit') ok = false;
         }
         for (const w of spec.wrong ?? []) {
           const g = await check(w.code);
@@ -182,9 +189,9 @@ async function main() {
       key, origin: 'schooding', kind, title: raw.title.replace(/\(\*\)/g, '').replace(/\s+/g, ' ').trim(),
       statementMd, notions: { primary: spec.notion, secondary: spec.sec ?? [] }, difficulty: spec.diff, estimatedMinutes: spec.min,
       tools, givenVariables: (spec.given ?? []).map(([name, type]) => ({ name, type, description: '' })),
-      expectedVariables: expected, starterCode: starterOf(spec), compare, tests, hints: spec.hints,
+      expectedVariables: expected, member: spec.member, rules: spec.rules, starterCode: starterOf(spec), compare, tests, hints: spec.hints,
       referenceSolution: spec.fidelity === 'unavailable' ? '' : spec.ref,
-      provenance: { source: 'Schooding (cours 725, export privé)', importedAt: new Date().toISOString(), schoodingId: raw.schoodingId, session: sessNum.get(raw.session), order: raw.order, bankVersion: BANK_VERSION, fidelity: spec.fidelity, notes: spec.notes },
+      provenance: { source: raw.section === 'Examens' ? 'Schooding (cours 610, annales, export privé)' : 'Schooding (cours 725, export privé)', importedAt: new Date().toISOString(), schoodingId: raw.schoodingId, session: sessNum.get(raw.session), order: raw.order, bankVersion: BANK_VERSION, fidelity: spec.fidelity, notes: spec.notes },
     };
     return { ex, ok, text: `### ${key} · S${ex.provenance.session}.${raw.order} · ${ex.title} — *${spec.fidelity}*\n${lines.join('\n')}\n` };
   }));

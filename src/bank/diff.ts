@@ -3,7 +3,7 @@ import type { BankDiff, BankFile } from './types';
 
 /** Empreinte de ce qui influe sur la correction ou l'énoncé (pas sur les indices ni la provenance). */
 export function fingerprint(e: Exercise): string {
-  const core = JSON.stringify([e.kind, e.statementMd, e.tools, e.givenVariables, e.expectedVariables, e.starterCode, e.compare, e.tests]);
+  const core = JSON.stringify([e.kind, e.statementMd, e.tools, e.givenVariables, e.expectedVariables, e.starterCode, e.compare, e.tests, e.member, e.rules]);
   let h = 2166136261;
   for (let i = 0; i < core.length; i++) { h ^= core.charCodeAt(i); h = Math.imul(h, 16777619); }
   return (h >>> 0).toString(16).padStart(8, '0');
