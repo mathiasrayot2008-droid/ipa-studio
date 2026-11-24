@@ -55,7 +55,7 @@ test('PWA : manifeste valide, icônes présentes, application ouverte hors ligne
   await page.goto('/#/fiches');
   await page.reload();
   await expect(page.getByTestId('fiches')).toBeVisible();
-  await expect(page.getByTestId('fiches').locator('> li')).toHaveCount(20);
+  await expect(page.getByTestId('fiches').locator('> li')).toHaveCount(22);
   // Une requête abandonnée par le navigateur (préchargement en double) est tolérée ; une ressource qui n'est JAMAIS livrée ne l'est pas.
   const lost = failed.filter((f) => !delivered.has(f.split(' ')[0]!));
   expect(lost, 'aucune ressource de l’application ne doit manquer hors ligne').toEqual([]);

@@ -9,7 +9,7 @@ test('fiches : 22 notions, ancre, recherche, rendu', async ({ page }) => {
   expect(new Set(FICHES.map((f) => f.id)).size).toBe(20);
 
   await page.goto('/#/fiches');
-  await expect(page.getByTestId('fiches').locator('> li')).toHaveCount(20);
+  await expect(page.getByTestId('fiches').locator('> li')).toHaveCount(22);
 
   // Ancre : la fiche demandée est ouverte et visible.
   await page.goto('/#/fiches#N08');
