@@ -6,7 +6,7 @@ test.use({ viewport: { width: 1280, height: 800 } });
 
 test('fiches : 22 notions, ancre, recherche, rendu', async ({ page }) => {
   expect(FICHES).toHaveLength(22);
-  expect(new Set(FICHES.map((f) => f.id)).size).toBe(20);
+  expect(new Set(FICHES.map((f) => f.id)).size).toBe(22);
 
   await page.goto('/#/fiches');
   await expect(page.getByTestId('fiches').locator('> li')).toHaveCount(22);

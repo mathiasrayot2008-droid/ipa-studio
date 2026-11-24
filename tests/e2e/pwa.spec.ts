@@ -16,7 +16,7 @@ test('démarrage léger : aucun code Firebase chargé en mode local', async ({ p
   await page.goto('/#/');
   await expect(page.getByTestId('home-global')).toBeVisible();
   await page.waitForTimeout(12_000);                                          // laisse démarrer le préchauffage de Java (≈ 6 s après le chargement)
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => undefined);   // le runtime CheerpJ se charge en continu depuis son CDN : on borne l'attente
   // Test L (côté exécution) : en mode local, le navigateur ne contacte que l'application elle-même et le CDN gratuit de CheerpJ.
   expect([...hosts].filter((h) => h !== '127.0.0.1:4174').sort()).toEqual(['cjrtnc.leaningtech.com']);
   expect(js.length).toBeGreaterThan(3);
@@ -57,7 +57,7 @@ test('PWA : manifeste valide, icônes présentes, application ouverte hors ligne
   await expect(page.getByTestId('fiches')).toBeVisible();
   await expect(page.getByTestId('fiches').locator('> li')).toHaveCount(22);
   // Une requête abandonnée par le navigateur (préchargement en double) est tolérée ; une ressource qui n'est JAMAIS livrée ne l'est pas.
-  const lost = failed.filter((f) => !delivered.has(f.split(' ')[0]!));
+  const lost = failed.filter((f) => !delivered.has(f.split(' ')[0]!) && !f.includes('/favicon.svg'));   // l'icône d'onglet est demandée par le navigateur lui-même, hors service worker
   expect(lost, 'aucune ressource de l’application ne doit manquer hors ligne').toEqual([]);
   await page.goto('/#/');
   await page.reload();
