@@ -79,4 +79,6 @@ export const useBank = create<BankState>((setS, getS) => ({
   },
 }));
 
+/** Dernière séance de cours (les Annales, numérotées ≥ 100, ne comptent pas). */
+export const latestSession = (b: BankFile | null): number => (b ? Math.max(0, ...b.sessions.map((s) => s.number).filter((n) => n < 100)) : 0);
 export const sessionsOf = (b: BankFile | null) => (b ? [...b.sessions].sort((x, y) => x.number - y.number) : []);

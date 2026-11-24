@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Page } from '@/app/Page';
-import { useBank } from '@/bank/store';
+import { latestSession, useBank } from '@/bank/store';
 import { ACQUIRED_MIN_FAMILIES, ACQUIRED_THRESHOLD, estimateAt, familyOfKey, globalMastery, levelOf, recomputeMastery, type ExerciseMeta } from '@/engine/mastery';
-import { NOTIONS, NOTION_SESSION } from '@/engine/notions';
+import { LAST_SESSION, NOTIONS, NOTION_SESSION } from '@/engine/notions';
 import { presetUrl } from './weakness';
 import { NotionBar } from './NotionBar';
 import { useIpaIndex } from './useIpaIndex';
@@ -18,7 +18,7 @@ export default function ProgressPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const now = Date.now();
-  const asOf = bank ? Math.max(0, ...bank.sessions.map((s) => s.number)) || 9 : 9;
+  const asOf = latestSession(bank) || LAST_SESSION;
   const available = useMemo(() => new Set(index?.entries.map((e) => e.notion) ?? []), [index]);
 
   const meta = useMemo(() => {

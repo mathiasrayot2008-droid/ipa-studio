@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
 import { FICHES } from '../../src/content/fiches';
 
-// Fiches de cours : 20 notions, ancres #N08, recherche, rendu du code, affichage mobile.
+// Fiches de cours : 22 notions, ancres #N08, recherche, rendu du code, affichage mobile.
 test.use({ viewport: { width: 1280, height: 800 } });
 
-test('fiches : 20 notions, ancre, recherche, rendu', async ({ page }) => {
-  expect(FICHES).toHaveLength(20);
+test('fiches : 22 notions, ancre, recherche, rendu', async ({ page }) => {
+  expect(FICHES).toHaveLength(22);
   expect(new Set(FICHES.map((f) => f.id)).size).toBe(20);
 
   await page.goto('/#/fiches');

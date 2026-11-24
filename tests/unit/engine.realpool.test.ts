@@ -8,17 +8,17 @@ import { makeRng } from '@/engine/rng';
 const index = JSON.parse(readFileSync('public/bank/ipa-1.0.0/index.json', 'utf8')) as { version: string; entries: PoolEntry[]; families: { id: string }[] };
 const pool = index.entries;
 const ctx = { pool, poolVersion: index.version, generatorVersion: '1.0.0', now: '2026-11-16T10:00:00.000Z' };
-const cfg = (c: Partial<DstConfig> = {}): DstConfig => ({ scope: 'global', durationMin: 120, level: 'moyen', mode: 'examen', adaptive: true, asOfSession: 9, ...c });
+const cfg = (c: Partial<DstConfig> = {}): DstConfig => ({ scope: 'global', durationMin: 120, level: 'moyen', mode: 'examen', adaptive: true, asOfSession: 10, ...c });
 const seed = (i: number) => { const r = makeRng(`reel-${i}`); return [...Array(4)].map(() => Math.floor(r.next() * 2 ** 32).toString(16).padStart(8, '0')).join(''); };
 const diff = (k: string) => pool.find((e) => e.key === k)!.difficulty;
 const LEVELS: Level[] = ['facile', 'moyen', 'difficile'];
 
 describe('banque réelle', () => {
-  it('structure : clés uniques, 20 notions couvertes, ≥ 2 variantes par notion, difficultés 1 à 5', () => {
+  it('structure : clés uniques, 22 notions couvertes, ≥ 2 variantes par notion, difficultés 1 à 5', () => {
     expect(new Set(pool.map((e) => e.key)).size).toBe(pool.length);
     expect(index.families.length).toBeGreaterThanOrEqual(20);
     const notions = new Set(pool.map((e) => e.notion));
-    expect(notions.size).toBe(20);
+    expect(notions.size).toBe(22);
     for (const n of notions) {
       const variants = new Set(pool.filter((e) => e.notion === n).map((e) => `${e.familyId}/${e.variantId}`));
       expect(variants.size, n).toBeGreaterThanOrEqual(2);

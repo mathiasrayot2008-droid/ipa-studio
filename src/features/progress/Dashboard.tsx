@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Page } from '@/app/Page';
 import { useAuth } from '@/data/auth';
-import { useBank } from '@/bank/store';
+import { latestSession, useBank } from '@/bank/store';
 import { globalMastery, levelOf } from '@/engine/mastery';
-import { NOTIONS, NOTION_SESSION } from '@/engine/notions';
+import { LAST_SESSION, NOTIONS, NOTION_SESSION } from '@/engine/notions';
 import { remainingMs, formatClock } from '@/features/dst/dstLogic';
 import { NotionBar } from './NotionBar';
 import { isCountableTag, tagLabel } from './labels';
@@ -22,8 +22,8 @@ export default function Dashboard() {
   const { index } = useIpaIndex();
   const now = Date.now();
 
-  const latest = bank ? Math.max(0, ...bank.sessions.map((s) => s.number)) : 0;
-  const asOf = latest || 9;
+  const latest = latestSession(bank);
+  const asOf = latest || LAST_SESSION;
   const available = useMemo(() => new Set(index?.entries.map((e) => e.notion) ?? []), [index]);
   const eligible = NOTIONS.filter((n) => NOTION_SESSION[n.id] <= asOf);
   const global = globalMastery(mastery, eligible.map((n) => n.id), {}, now);

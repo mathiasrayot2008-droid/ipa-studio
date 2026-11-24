@@ -1,8 +1,8 @@
 # Rapport de validation des pools IPA Studio (ipa-1.0.0)
 
-- 21 familles, 74 variantes, **296 exercices valides**, 20 notions couvertes
-- mutants : 912, tous tués (sinon ❌ ci-dessous)
-- aucun échec — 0 s
+- 23 familles, 82 variantes, **328 exercices valides**, 22 notions couvertes
+- mutants : 1008, tous tués (sinon ❌ ci-dessous)
+- aucun échec — 43 s
 
 - accumulation/produit-impairs (d3) : 4/4 instances valides
 - accumulation/somme-1-n (d1) : 4/4 instances valides
@@ -55,6 +55,14 @@
 - strCompte/count-char (d2) : 4/4 instances valides
 - strCompte/count-upper (d2) : 4/4 instances valides
 - strCompte/count-vowels (d3) : 4/4 instances valides
+- strMots/capitalise-phrase (d4) : 4/4 instances valides
+- strMots/censure (d5) : 4/4 instances valides
+- strMots/mot-le-plus-long (d4) : 4/4 instances valides
+- strMots/nb-mots (d2) : 4/4 instances valides
+- strTransfo/capitalise (d2) : 4/4 instances valides
+- strTransfo/inverse (d3) : 4/4 instances valides
+- strTransfo/remplacements (d3) : 4/4 instances valides
+- strTransfo/terminaison (d2) : 4/4 instances valides
 - switchMenu/calculatrice (d3) : 4/4 instances valides
 - switchMenu/jour-semaine (d2) : 4/4 instances valides
 - switchMenu/jours-du-mois (d2) : 4/4 instances valides

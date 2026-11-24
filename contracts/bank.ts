@@ -10,7 +10,8 @@ export type NotionId =
   | 'N08-boucle-for' | 'N09-boucle-while' | 'N10-accumulateurs-compteurs' | 'N11-boucles-imbriquees'
   | 'N12-grille-coordonnees' | 'N13-tableaux-bases' | 'N14-parcours-tableau'
   | 'N15-tableaux-construction' | 'N16-tableaux-2d' | 'N17-aplatissement-transposition'
-  | 'N18-string-bases' | 'N19-string-parcours' | 'N20-string-comparaison';
+  | 'N18-string-bases' | 'N19-string-parcours' | 'N20-string-comparaison'
+  | 'N21-string-transformation' | 'N22-string-mots';
 
 export interface Notion {
   id: NotionId;

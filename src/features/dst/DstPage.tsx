@@ -4,9 +4,9 @@ import type { DstConfig, DstMode, DstSubject, Level, NotionId } from '@/types/ba
 import { Card, Page } from '@/app/Page';
 import { useAuth } from '@/data/auth';
 import type { DstRecord } from '@/data/types';
-import { useBank } from '@/bank/store';
+import { latestSession, useBank } from '@/bank/store';
 import { IPA_POOL_VERSION, loadIndex, type IpaIndex } from '@/bank/ipaPool';
-import { NOTIONS, NOTION_BY_ID } from '@/engine/notions';
+import { LAST_SESSION, NOTIONS, NOTION_BY_ID } from '@/engine/notions';
 import { HINT_PENALTIES } from '@/engine/scoring';
 import { buildComposeContext, composeFor, DST_MAX, DST_MIN, remainingMs, startRecord, formatClock } from './dstLogic';
 import { ComposeError } from '@/engine/compose';
@@ -57,7 +57,7 @@ export default function DstPage() {
     return {
       scope: sc === 'notion' ? 'notion' as const : 'global' as const, notions: ids,
       duration: dur >= DST_MIN && dur <= DST_MAX ? dur : 60, level: (['facile', 'moyen', 'difficile'] as const).find((x) => x === lv) ?? 'moyen',
-      mode: (['examen', 'assiste'] as const).find((x) => x === md) ?? 'examen', asOf: as >= 1 && as <= 9 ? as : null, auto: params.get('auto') === '1',
+      mode: (['examen', 'assiste'] as const).find((x) => x === md) ?? 'examen', asOf: as >= 1 && as <= LAST_SESSION ? as : null, auto: params.get('auto') === '1',
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -80,8 +80,8 @@ export default function DstPage() {
     void repo.getSettings().then((s) => setSettingsSession(s.asOfSession)).catch(() => undefined);
   }, [repo, status]);
 
-  const latestSession = useMemo(() => (bank ? Math.max(0, ...bank.sessions.map((s) => s.number)) : 0), [bank]);
-  const effectiveAsOf = asOf ?? settingsSession ?? (latestSession || 9);
+  const latestSessionNo = useMemo(() => latestSession(bank), [bank]);
+  const effectiveAsOf = asOf ?? settingsSession ?? (latestSessionNo || LAST_SESSION);
   const available = useMemo(() => new Set(index?.entries.map((e) => e.notion) ?? []), [index]);
   const running = history?.filter((h) => h.record.status === 'running') ?? [];
   const done = history?.filter((h) => h.record.status === 'submitted') ?? [];
@@ -158,7 +158,7 @@ export default function DstPage() {
             {scope === 'global' ? (
               <label className="mt-3 flex flex-wrap items-center gap-2 text-sm">Programme étudié jusqu’à la séance
                 <select value={effectiveAsOf} onChange={(e) => { setAsOf(Number(e.target.value)); setPreview(null); }} className="touch rounded-lg border border-border bg-surface-2 px-2" data-testid="asof">
-                  {Array.from({ length: 9 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
+                  {Array.from({ length: LAST_SESSION }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
               </label>
             ) : (

@@ -27,8 +27,11 @@ export const NOTIONS: Notion[] = [
   n('N18-string-bases', 'String : bases', 9, ['N01-variables-types'], ['length', 'charAt', 'concaténation']),
   n('N19-string-parcours', 'String : parcours', 9, ['N18-string-bases', 'N10-accumulateurs-compteurs'], ['comptage', 'mots', 'acronyme']),
   n('N20-string-comparaison', 'String : comparaison', 9, ['N18-string-bases', 'N07-conditions-cascades'], ['equals', 'equalsIgnoreCase']),
+  n('N21-string-transformation', 'String : transformation', 10, ['N18-string-bases'], ['substring', 'majuscules / minuscules', 'replace', 'endsWith']),
+  n('N22-string-mots', 'String : mots et split', 10, ['N19-string-parcours', 'N21-string-transformation'], ['split', 'reconstruction', 'mot par mot']),
 ];
 
+export const LAST_SESSION = Math.max(...NOTIONS.map((x) => x.sessionNumber));
 export const NOTION_BY_ID = new Map(NOTIONS.map((x) => [x.id, x]));
 export const NOTION_SESSION: Record<NotionId, number> = Object.fromEntries(NOTIONS.map((x) => [x.id, x.sessionNumber])) as Record<NotionId, number>;
 export const SUBNOTION_OWNER: Record<string, NotionId> = Object.fromEntries(NOTIONS.flatMap((x) => x.subNotions.map((s) => [s.id, x.id] as const)));

@@ -13,6 +13,8 @@ import predicats from './predicats';
 import strAcces from './strAcces';
 import strComparaison from './strComparaison';
 import strCompte from './strCompte';
+import strMots from './strMots';
+import strTransfo from './strTransfo';
 import switchMenu from './switchMenu';
 import tab2DConv from './tab2DConv';
 import tab2DInit from './tab2DInit';
@@ -22,4 +24,4 @@ import tabStat from './tabStat';
 import tranches from './tranches';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const FAMILIES: FamilyDefinition<any>[] = [convUnites, minMaxN, accumulation, diviseurs, tabStat, tabInsertion, tab2DInit, strCompte, strAcces, grilleMotif, switchMenu, tranches, tabDeclAcces, affectations, predicats, compteurs, doubleBoucle, tab2DConv, strComparaison, appelsMath, dessinScene];
+export const FAMILIES: FamilyDefinition<any>[] = [convUnites, minMaxN, accumulation, diviseurs, tabStat, tabInsertion, tab2DInit, strCompte, strAcces, grilleMotif, switchMenu, tranches, tabDeclAcces, affectations, predicats, compteurs, doubleBoucle, tab2DConv, strComparaison, strTransfo, strMots, appelsMath, dessinScene];

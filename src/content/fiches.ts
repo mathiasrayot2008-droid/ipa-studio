@@ -515,6 +515,65 @@ if (choix.equals("pierre")) { ... }
 - \`if (a == "oui")\` : à remplacer par \`a.equals("oui")\`.
 - Oublier la casse : \`"Oui"\` n'est pas \`"oui"\` pour \`equals\`.`,
   },
+  {
+    id: 'N21', notion: 'N21-string-transformation', title: 'String : transformation',
+    summary: 'On fabrique un nouveau texte avec substring, toUpperCase, toLowerCase, replace ; endsWith teste une terminaison.',
+    body: `**À retenir**
+
+\`\`\`java
+String s = "bonjour";
+String debut = s.substring(0, 1);        // "b"  (de l'indice 0 inclus à 1 exclu)
+String reste = s.substring(1);           // "onjour"  (de l'indice 1 jusqu'à la fin)
+String maj = s.toUpperCase();            // "BONJOUR"
+String min = s.toLowerCase();            // "bonjour"
+String capitalise = s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();  // "Bonjour"
+String leet = s.replace('o', '0');       // "b0nj0ur"
+boolean fem = s.endsWith("a");           // false
+\`\`\`
+
+- Un String est **immuable** : \`toUpperCase()\`, \`replace\`, \`substring\` ne modifient pas \`s\`, ils **retournent** un nouveau texte. Il faut récupérer le résultat : \`s = s.toUpperCase();\`.
+- \`substring(i, j)\` prend de l'indice \`i\` **inclus** à \`j\` **exclu** ; \`substring(i)\` va jusqu'à la fin.
+- Pour **inverser** un texte, parcours-le de la fin vers le début (\`i\` de \`length() - 1\` à \`0\`) en ajoutant \`charAt(i)\` à un résultat qui part de \`""\`.
+- \`replace(a, b)\` remplace **toutes** les occurrences ; pour plusieurs remplacements, enchaîne-les en réaffectant à chaque fois.
+- Quand la casse ne compte pas, passe d'abord tout en minuscules (ou majuscules).
+
+**Pièges courants**
+
+- Écrire \`s.toUpperCase();\` seul : le résultat est perdu.
+- \`s.substring(0, 1)\` sur une chaîne vide : erreur ; vérifie la taille avant.
+- Confondre \`'a'\` (char) et \`"a"\` (String) : \`replace('a', 'b')\` et \`replace("a", "b")\` existent tous les deux, mais on ne mélange pas.`,
+  },
+  {
+    id: 'N22', notion: 'N22-string-mots', title: 'String : mots et split',
+    summary: 'split(" ") découpe une phrase en tableau de mots ; on traite chaque mot puis on reconstruit la phrase.',
+    body: `**À retenir**
+
+\`\`\`java
+String phrase = "bonjour tout le monde";
+String[] mots = phrase.split(" ");        // {"bonjour", "tout", "le", "monde"}
+int nb = mots.length;                      // 4
+String resultat = "";
+for (int i = 0; i < mots.length; i++) {
+    String mot = mots[i];
+    mot = mot.substring(0, 1).toUpperCase() + mot.substring(1).toLowerCase();
+    if (i > 0) { resultat = resultat + " "; }     // espace entre les mots, pas avant le premier
+    resultat = resultat + mot;
+}
+// resultat vaut "Bonjour Tout Le Monde"
+\`\`\`
+
+- \`split(" ")\` renvoie un **tableau** de String : \`mots.length\` est le nombre de mots (sans parenthèses), \`mots[i]\` le mot numéro i.
+- Pour **reconstruire** une phrase, ajoute un espace avant chaque mot **sauf le premier** (\`if (i > 0)\`).
+- Comparer un mot à une liste de mots (interdits, etc.) : une boucle dans une boucle, avec \`equals\` ou \`equalsIgnoreCase\`, jamais \`==\`.
+- \`"*".repeat\` n'est pas au programme : fabrique une suite d'étoiles avec une boucle.
+- On ne remplace que des **mots entiers** : \`replace\` sur toute la phrase remplacerait aussi des morceaux de mots (« truc » dans « truculent »).
+
+**Pièges courants**
+
+- Oublier de réaffecter le mot modifié au résultat.
+- Ajouter l'espace après chaque mot : la phrase finit alors par un espace en trop.
+- Utiliser \`mots.length()\` (parenthèses de String) au lieu de \`mots.length\` (tableau).`,
+  },
 ];
 
 export const FICHE_BY_NOTION = new Map(FICHES.map((f) => [f.notion, f]));

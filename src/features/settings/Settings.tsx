@@ -1,3 +1,4 @@
+import { LAST_SESSION } from '@/engine/notions';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Card, Page } from '@/app/Page';
 import { useTheme } from '@/app/theme';
@@ -135,7 +136,7 @@ export default function Settings() {
               <span>Dernière séance étudiée<span className="block text-xs text-muted">Les DST ne contiendront que des notions vues jusque-là.</span></span>
               <select className="touch rounded-lg border border-border bg-bg px-2" value={s.asOfSession ?? ''} onChange={(e) => update({ asOfSession: e.target.value ? Number(e.target.value) : null })} aria-label="Dernière séance étudiée">
                 <option value="">La plus récente</option>
-                {Array.from({ length: 9 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>Séance {n}</option>)}
+                {Array.from({ length: LAST_SESSION }, (_, i) => i + 1).map((n) => <option key={n} value={n}>Séance {n}</option>)}
               </select>
             </label>
           </div>
